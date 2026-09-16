@@ -40,3 +40,6 @@ desktop.ini
 
 # Local development
 *.local
+
+# Java / Maven build output
+backend/target/
