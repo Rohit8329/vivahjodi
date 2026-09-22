@@ -1,6 +1,7 @@
 package com.vivahjodi.profile;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -13,18 +14,32 @@ public class ProfileResponse {
     // BASIC INFORMATION
     // =========================================================
 
+    private String profileCode;
+
     private String firstName;
     private String middleName;
     private String lastName;
 
     private String gender;
     private LocalDate dateOfBirth;
+    private LocalTime timeOfBirth;
+    private String birthPlace;
+
     private String maritalStatus;
 
     private Integer heightCm;
     private Integer weightKg;
 
+    private Integer numberOfChildren;
+
     private String motherTongue;
+
+    private String bloodGroup;
+    private String complexion;
+    private String bodyType;
+
+    private Boolean physicalDisability;
+    private String disabilityDetails;
 
 
     // =========================================================
@@ -42,14 +57,65 @@ public class ProfileResponse {
 
 
     // =========================================================
-    // LOCATION INFORMATION
+    // LIFESTYLE INFORMATION
+    // =========================================================
+
+    private String eatingHabits;
+    private String drinkingHabits;
+    private String smokingHabits;
+
+
+    // =========================================================
+    // CURRENT LOCATION INFORMATION
+    // =========================================================
+
+    private String currentCountry;
+    private String currentAddress;
+    private String currentPincode;
+
+
+    // =========================================================
+    // NATIVE PLACE INFORMATION
     // =========================================================
 
     private String nativePlace;
+
+    private String nativeCountry;
+    private String nativeState;
+    private String nativeDistrict;
+    private String nativeTaluka;
+    private String nativeCity;
+
+    /*
+     * Legacy location fields retained for compatibility
+     * with the existing profile contract.
+     */
     private String state;
     private String district;
     private String taluka;
     private String city;
+
+
+    // =========================================================
+    // NRI INFORMATION
+    // =========================================================
+
+    private Boolean nri;
+
+    private String livingCountry;
+    private String nriAddress;
+
+
+    // =========================================================
+    // PROFILE VISIBILITY / REVIEW INFORMATION
+    // =========================================================
+
+    private String visibility;
+
+    private OffsetDateTime submittedAt;
+    private OffsetDateTime verifiedAt;
+
+    private String rejectionReason;
 
 
     // =========================================================
@@ -58,6 +124,11 @@ public class ProfileResponse {
 
     private String aboutMe;
     private String profileStatus;
+
+
+    // =========================================================
+    // TIMESTAMPS
+    // =========================================================
 
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
@@ -83,6 +154,7 @@ public class ProfileResponse {
         this.id = id;
     }
 
+
     public UUID getUserId() {
         return userId;
     }
@@ -95,6 +167,15 @@ public class ProfileResponse {
     // =========================================================
     // BASIC INFORMATION
     // =========================================================
+
+    public String getProfileCode() {
+        return profileCode;
+    }
+
+    public void setProfileCode(String profileCode) {
+        this.profileCode = profileCode;
+    }
+
 
     public String getFirstName() {
         return firstName;
@@ -141,6 +222,24 @@ public class ProfileResponse {
     }
 
 
+    public LocalTime getTimeOfBirth() {
+        return timeOfBirth;
+    }
+
+    public void setTimeOfBirth(LocalTime timeOfBirth) {
+        this.timeOfBirth = timeOfBirth;
+    }
+
+
+    public String getBirthPlace() {
+        return birthPlace;
+    }
+
+    public void setBirthPlace(String birthPlace) {
+        this.birthPlace = birthPlace;
+    }
+
+
     public String getMaritalStatus() {
         return maritalStatus;
     }
@@ -168,12 +267,66 @@ public class ProfileResponse {
     }
 
 
+    public Integer getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public void setNumberOfChildren(Integer numberOfChildren) {
+        this.numberOfChildren = numberOfChildren;
+    }
+
+
     public String getMotherTongue() {
         return motherTongue;
     }
 
     public void setMotherTongue(String motherTongue) {
         this.motherTongue = motherTongue;
+    }
+
+
+    public String getBloodGroup() {
+        return bloodGroup;
+    }
+
+    public void setBloodGroup(String bloodGroup) {
+        this.bloodGroup = bloodGroup;
+    }
+
+
+    public String getComplexion() {
+        return complexion;
+    }
+
+    public void setComplexion(String complexion) {
+        this.complexion = complexion;
+    }
+
+
+    public String getBodyType() {
+        return bodyType;
+    }
+
+    public void setBodyType(String bodyType) {
+        this.bodyType = bodyType;
+    }
+
+
+    public Boolean getPhysicalDisability() {
+        return physicalDisability;
+    }
+
+    public void setPhysicalDisability(Boolean physicalDisability) {
+        this.physicalDisability = physicalDisability;
+    }
+
+
+    public String getDisabilityDetails() {
+        return disabilityDetails;
+    }
+
+    public void setDisabilityDetails(String disabilityDetails) {
+        this.disabilityDetails = disabilityDetails;
     }
 
 
@@ -245,7 +398,69 @@ public class ProfileResponse {
 
 
     // =========================================================
-    // LOCATION INFORMATION
+    // LIFESTYLE INFORMATION
+    // =========================================================
+
+    public String getEatingHabits() {
+        return eatingHabits;
+    }
+
+    public void setEatingHabits(String eatingHabits) {
+        this.eatingHabits = eatingHabits;
+    }
+
+
+    public String getDrinkingHabits() {
+        return drinkingHabits;
+    }
+
+    public void setDrinkingHabits(String drinkingHabits) {
+        this.drinkingHabits = drinkingHabits;
+    }
+
+
+    public String getSmokingHabits() {
+        return smokingHabits;
+    }
+
+    public void setSmokingHabits(String smokingHabits) {
+        this.smokingHabits = smokingHabits;
+    }
+
+
+    // =========================================================
+    // CURRENT LOCATION INFORMATION
+    // =========================================================
+
+    public String getCurrentCountry() {
+        return currentCountry;
+    }
+
+    public void setCurrentCountry(String currentCountry) {
+        this.currentCountry = currentCountry;
+    }
+
+
+    public String getCurrentAddress() {
+        return currentAddress;
+    }
+
+    public void setCurrentAddress(String currentAddress) {
+        this.currentAddress = currentAddress;
+    }
+
+
+    public String getCurrentPincode() {
+        return currentPincode;
+    }
+
+    public void setCurrentPincode(String currentPincode) {
+        this.currentPincode = currentPincode;
+    }
+
+
+    // =========================================================
+    // NATIVE PLACE INFORMATION
     // =========================================================
 
     public String getNativePlace() {
@@ -256,6 +471,55 @@ public class ProfileResponse {
         this.nativePlace = nativePlace;
     }
 
+
+    public String getNativeCountry() {
+        return nativeCountry;
+    }
+
+    public void setNativeCountry(String nativeCountry) {
+        this.nativeCountry = nativeCountry;
+    }
+
+
+    public String getNativeState() {
+        return nativeState;
+    }
+
+    public void setNativeState(String nativeState) {
+        this.nativeState = nativeState;
+    }
+
+
+    public String getNativeDistrict() {
+        return nativeDistrict;
+    }
+
+    public void setNativeDistrict(String nativeDistrict) {
+        this.nativeDistrict = nativeDistrict;
+    }
+
+
+    public String getNativeTaluka() {
+        return nativeTaluka;
+    }
+
+    public void setNativeTaluka(String nativeTaluka) {
+        this.nativeTaluka = nativeTaluka;
+    }
+
+
+    public String getNativeCity() {
+        return nativeCity;
+    }
+
+    public void setNativeCity(String nativeCity) {
+        this.nativeCity = nativeCity;
+    }
+
+
+    // =========================================================
+    // LEGACY LOCATION INFORMATION
+    // =========================================================
 
     public String getState() {
         return state;
@@ -290,6 +554,77 @@ public class ProfileResponse {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+
+    // =========================================================
+    // NRI INFORMATION
+    // =========================================================
+
+    public Boolean getNri() {
+        return nri;
+    }
+
+    public void setNri(Boolean nri) {
+        this.nri = nri;
+    }
+
+
+    public String getLivingCountry() {
+        return livingCountry;
+    }
+
+    public void setLivingCountry(String livingCountry) {
+        this.livingCountry = livingCountry;
+    }
+
+
+    public String getNriAddress() {
+        return nriAddress;
+    }
+
+    public void setNriAddress(String nriAddress) {
+        this.nriAddress = nriAddress;
+    }
+
+
+    // =========================================================
+    // PROFILE VISIBILITY / REVIEW INFORMATION
+    // =========================================================
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
+
+
+    public OffsetDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(OffsetDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+
+    public OffsetDateTime getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public void setVerifiedAt(OffsetDateTime verifiedAt) {
+        this.verifiedAt = verifiedAt;
+    }
+
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
 

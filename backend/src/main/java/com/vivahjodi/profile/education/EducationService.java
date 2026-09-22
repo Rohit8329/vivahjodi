@@ -33,29 +33,52 @@ public class EducationService {
 
         Profile profile = getMyProfile(email);
 
-        EducationDetail education = new EducationDetail();
-
-        education.setProfile(profile);
-        education.setEducationLevel(
-                normalizeOptional(request.getEducationLevel())
-        );
-        education.setEducationStream(
-                normalizeOptional(request.getEducationStream())
-        );
-        education.setQualification(
-                normalizeOptional(request.getQualification())
-        );
-        education.setSpecialization(
-                normalizeOptional(request.getSpecialization())
-        );
-        education.setInstituteName(
-                normalizeOptional(request.getInstituteName())
-        );
-        education.setPassingYear(request.getPassingYear());
+        /*
+         * A profile has one main education section.
+         *
+         * If education already exists for this profile,
+         * update that record instead of creating another row.
+         */
+        EducationDetail education =
+                educationDetailRepository
+                        .findByProfileIdOrderByCreatedAtAsc(profile.getId())
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
 
         OffsetDateTime now = OffsetDateTime.now();
 
-        education.setCreatedAt(now);
+        if (education == null) {
+            education = new EducationDetail();
+
+            education.setProfile(profile);
+            education.setCreatedAt(now);
+        }
+
+        education.setEducationLevel(
+                normalizeOptional(request.getEducationLevel())
+        );
+
+        education.setEducationStream(
+                normalizeOptional(request.getEducationStream())
+        );
+
+        education.setQualification(
+                normalizeOptional(request.getQualification())
+        );
+
+        education.setSpecialization(
+                normalizeOptional(request.getSpecialization())
+        );
+
+        education.setInstituteName(
+                normalizeOptional(request.getInstituteName())
+        );
+
+        education.setPassingYear(
+                request.getPassingYear()
+        );
+
         education.setUpdatedAt(now);
 
         EducationDetail saved =
@@ -98,21 +121,30 @@ public class EducationService {
         education.setEducationLevel(
                 normalizeOptional(request.getEducationLevel())
         );
+
         education.setEducationStream(
                 normalizeOptional(request.getEducationStream())
         );
+
         education.setQualification(
                 normalizeOptional(request.getQualification())
         );
+
         education.setSpecialization(
                 normalizeOptional(request.getSpecialization())
         );
+
         education.setInstituteName(
                 normalizeOptional(request.getInstituteName())
         );
-        education.setPassingYear(request.getPassingYear());
 
-        education.setUpdatedAt(OffsetDateTime.now());
+        education.setPassingYear(
+                request.getPassingYear()
+        );
+
+        education.setUpdatedAt(
+                OffsetDateTime.now()
+        );
 
         EducationDetail updated =
                 educationDetailRepository.save(education);
@@ -161,27 +193,35 @@ public class EducationService {
                 new EducationDetailResponse();
 
         response.setId(education.getId());
+
         response.setEducationLevel(
                 education.getEducationLevel()
         );
+
         response.setEducationStream(
                 education.getEducationStream()
         );
+
         response.setQualification(
                 education.getQualification()
         );
+
         response.setSpecialization(
                 education.getSpecialization()
         );
+
         response.setInstituteName(
                 education.getInstituteName()
         );
+
         response.setPassingYear(
                 education.getPassingYear()
         );
+
         response.setCreatedAt(
                 education.getCreatedAt()
         );
+
         response.setUpdatedAt(
                 education.getUpdatedAt()
         );

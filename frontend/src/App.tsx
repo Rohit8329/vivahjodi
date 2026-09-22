@@ -27,6 +27,26 @@ import {
   type ProfileResponse,
 } from "./api/profile";
 
+import {
+  createOrUpdateFamily,
+  getMyFamily,
+  type FamilyDetail,
+} from "./api/family";
+
+import {
+  createOrUpdateEducation,
+  getMyEducation,
+  type EducationDetail,
+} from "./api/education";
+
+import {
+  createRelative,
+  getMyRelatives,
+  updateRelative,
+  deleteRelative,
+  type RelativeDetail,
+} from "./api/relative";
+
 /* =========================================================
    RAZORPAY TYPES
    ========================================================= */
@@ -100,14 +120,260 @@ type ProfileForm = {
   gender: string;
   dateOfBirth: string;
   maritalStatus: string;
+  timeOfBirth: string;
+  birthPlace: string;
+  numberOfChildren: string;
   heightCm: string;
   weightKg: string;
+  bloodGroup: string;
+  complexion: string;
+  bodyType: string;
+  physicalDisability: string;
+  disabilityDetails: string;
   religion: string;
   caste: string;
   subCaste: string;
+  gotra: string;
+  zodiacSign: string;
+  nakshatra: string;
+  manglikStatus: string;
   motherTongue: string;
+
+  educationLevel: string;
+  educationStream: string;
+  qualification: string;
+  specialization: string;
+  instituteName: string;
+  passingYear: string;
+
+  fatherName: string;
+  fatherOccupation: string;
+  motherName: string;
+  motherOccupation: string;
+  siblingsCount: string;
+  brothersCount: string;
+  sistersCount: string;
+  numberOfBrothers: string;
+  brothersMarried: string;
+  numberOfSisters: string;
+  sistersMarried: string;
+  familyType: string;
+  familyValues: string;
+  familyStatus: string;
+  familyAbout: string;
+  parentalDetails: string;
+  relativeName: string;
+  relativeRelation: string;
+  relativeSurname: string;
+  relativeCity: string;
+  relativeOccupation: string;
+  relativeLocation: string;
+  relativeNotes: string;
+  relativeContactVisible: boolean;
+
+  occupation: string;
+  subOccupation: string;
+  employmentType: string;
+  employedIn: string;
+  companyName: string;
+  designation: string;
+  workLocation: string;
+  annualIncome: string;
+  incomeCurrency: string;
+
+  eatingHabits: string;
+  drinkingHabits: string;
+  smokingHabits: string;
+
+  currentCountry: string;
+  currentAddress: string;
+  currentPincode: string;
+  state: string;
+  district: string;
+  taluka: string;
+  city: string;
+
+  nativeCountry: string;
+  nativeState: string;
+  nativeDistrict: string;
+  nativeTaluka: string;
+  nativeCity: string;
+  nativePlace: string;
+
+  nri: string;
+  livingCountry: string;
+  nriAddress: string;
+
   aboutMe: string;
+
+  partnerMinAge: string;
+  partnerMaxAge: string;
+  partnerMinHeightCm: string;
+  partnerMaxHeightCm: string;
+  partnerMaritalStatus: string;
+  partnerMotherTongue: string;
+  partnerDisability: string;
+  partnerChildren: string;
+  partnerEatingHabits: string;
+  partnerSmokingHabits: string;
+  partnerDrinkingHabits: string;
+  partnerReligion: string;
+  partnerCaste: string;
+  partnerSubCaste: string;
+  partnerZodiacSign: string;
+  partnerNakshatra: string;
+  partnerManglikStatus: string;
+  partnerEducation: string;
+  partnerOccupation: string;
+  partnerMinIncome: string;
+  partnerMaxIncome: string;
+  partnerAbout: string;
+
+  visibility: string;
 };
+
+type ProfilePhotoDraft = {
+  id: string;
+  file: File;
+  preview: string;
+  isPrimary: boolean;
+};
+
+const emptyProfileForm: ProfileForm = {
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  gender: "",
+  dateOfBirth: "",
+  maritalStatus: "NEVER_MARRIED",
+  timeOfBirth: "",
+  birthPlace: "",
+  numberOfChildren: "",
+  heightCm: "",
+  weightKg: "",
+  bloodGroup: "",
+  complexion: "",
+  bodyType: "",
+  physicalDisability: "false",
+  disabilityDetails: "",
+  religion: "",
+  caste: "",
+  subCaste: "",
+  gotra: "",
+  zodiacSign: "",
+  nakshatra: "",
+  manglikStatus: "",
+  motherTongue: "मराठी",
+
+  educationLevel: "",
+  educationStream: "",
+  qualification: "",
+  specialization: "",
+  instituteName: "",
+  passingYear: "",
+
+  fatherName: "",
+  fatherOccupation: "",
+  motherName: "",
+  motherOccupation: "",
+
+  siblingsCount: "",
+  brothersCount: "",
+  sistersCount: "",
+
+  numberOfBrothers: "",
+  brothersMarried: "",
+  numberOfSisters: "",
+  sistersMarried: "",
+  familyType: "",
+  familyValues: "",
+  familyStatus: "",
+  familyAbout: "",
+  parentalDetails: "",
+  relativeName: "",
+  relativeRelation: "",
+  relativeSurname: "",
+  relativeCity: "",
+  relativeOccupation: "",
+  relativeLocation: "",
+  relativeNotes: "",
+  relativeContactVisible: false,
+
+  occupation: "",
+  subOccupation: "",
+  employmentType: "",
+  employedIn: "",
+  companyName: "",
+  designation: "",
+  workLocation: "",
+  annualIncome: "",
+  incomeCurrency: "INR",
+
+  eatingHabits: "",
+  drinkingHabits: "",
+  smokingHabits: "",
+
+  currentCountry: "India",
+  currentAddress: "",
+  currentPincode: "",
+  state: "",
+  district: "",
+  taluka: "",
+  city: "",
+
+  nativeCountry: "India",
+  nativeState: "",
+  nativeDistrict: "",
+  nativeTaluka: "",
+  nativeCity: "",
+  nativePlace: "",
+
+  nri: "false",
+  livingCountry: "",
+  nriAddress: "",
+
+  aboutMe: "",
+
+  partnerMinAge: "",
+  partnerMaxAge: "",
+  partnerMinHeightCm: "",
+  partnerMaxHeightCm: "",
+  partnerMaritalStatus: "",
+  partnerMotherTongue: "",
+  partnerDisability: "",
+  partnerChildren: "",
+  partnerEatingHabits: "",
+  partnerSmokingHabits: "",
+  partnerDrinkingHabits: "",
+  partnerReligion: "",
+  partnerCaste: "",
+  partnerSubCaste: "",
+  partnerZodiacSign: "",
+  partnerNakshatra: "",
+  partnerManglikStatus: "",
+  partnerEducation: "",
+  partnerOccupation: "",
+  partnerMinIncome: "",
+  partnerMaxIncome: "",
+  partnerAbout: "",
+
+  visibility: "PRIVATE",
+};
+
+const profileStepLabels = [
+  "मूलभूत",
+  "धर्म व समाज",
+  "शिक्षण",
+  "कुटुंब",
+  "नातेवाईक",
+  "व्यवसाय",
+  "जीवनशैली",
+  "पत्ता",
+  "NRI माहिती",
+  "माझ्याबद्दल",
+  "जोडीदाराच्या अपेक्षा",
+  "गोपनीयता",
+];
 
 /* =========================================================
    SERVICES
@@ -274,21 +540,33 @@ function App() {
     useState("");
 
   const [profileForm, setProfileForm] =
-    useState<ProfileForm>({
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      gender: "",
-      dateOfBirth: "",
-      maritalStatus: "NEVER_MARRIED",
-      heightCm: "",
-      weightKg: "",
-      religion: "",
-      caste: "",
-      subCaste: "",
-      motherTongue: "मराठी",
-      aboutMe: "",
-    });
+    useState<ProfileForm>({ ...emptyProfileForm });
+
+  const [profilePhotos, setProfilePhotos] =
+    useState<ProfilePhotoDraft[]>([]);
+
+  const [relatives, setRelatives] =
+    useState<RelativeDetail[]>([]);
+
+  const [editingRelativeId, setEditingRelativeId] =
+  useState<string | null>(null);
+
+const [editingRelativeForm, setEditingRelativeForm] =
+  useState({
+    name: "",
+    relation: "",
+    surname: "",
+    city: "",
+    occupation: "",
+    location: "",
+    notes: "",
+    contactVisible: false,
+  });
+    
+
+  
+  const [photoError, setPhotoError] =
+    useState("");
 
   /* =======================================================
      LOAD CURRENT USER
@@ -346,14 +624,23 @@ function App() {
 
   const profileToForm = (
     data: ProfileResponse,
+    family: FamilyDetail | null = null,
+    education: EducationDetail | null = null,
   ): ProfileForm => ({
+    ...emptyProfileForm,
     firstName: data.firstName || "",
     middleName: data.middleName || "",
     lastName: data.lastName || "",
     gender: data.gender || "",
     dateOfBirth: data.dateOfBirth || "",
-    maritalStatus:
-      data.maritalStatus || "NEVER_MARRIED",
+    maritalStatus: data.maritalStatus || "NEVER_MARRIED",
+    timeOfBirth: data.timeOfBirth || "",
+    birthPlace: data.birthPlace || "",
+    numberOfChildren:
+      data.numberOfChildren !== null &&
+      data.numberOfChildren !== undefined
+        ? String(data.numberOfChildren)
+        : "",
     heightCm:
       data.heightCm !== null && data.heightCm !== undefined
         ? String(data.heightCm)
@@ -362,11 +649,119 @@ function App() {
       data.weightKg !== null && data.weightKg !== undefined
         ? String(data.weightKg)
         : "",
+    bloodGroup: data.bloodGroup || "",
+    complexion: data.complexion || "",
+    bodyType: data.bodyType || "",
+    physicalDisability:
+      data.physicalDisability ? "true" : "false",
+    disabilityDetails: data.disabilityDetails || "",
     religion: data.religion || "",
     caste: data.caste || "",
     subCaste: data.subCaste || "",
+    gotra: data.gotra || "",
+    zodiacSign: data.zodiacSign || "",
+    nakshatra: data.nakshatra || "",
+    manglikStatus: data.manglikStatus || "",
     motherTongue: data.motherTongue || "मराठी",
+  
+    eatingHabits: data.eatingHabits || "",
+    drinkingHabits: data.drinkingHabits || "",
+    smokingHabits: data.smokingHabits || "",
+    currentCountry: data.currentCountry || "India",
+    currentAddress: data.currentAddress || "",
+    currentPincode: data.currentPincode || "",
+    state: data.state || "",
+    district: data.district || "",
+    taluka: data.taluka || "",
+    city: data.city || "",
+    nativeCountry: data.nativeCountry || "India",
+    nativeState: data.nativeState || "",
+    nativeDistrict: data.nativeDistrict || "",
+    nativeTaluka: data.nativeTaluka || "",
+    nativeCity: data.nativeCity || "",
+    nativePlace: data.nativePlace || "",
+    nri: data.nri ? "true" : "false",
+    livingCountry: data.livingCountry || "",
+    nriAddress: data.nriAddress || "",
     aboutMe: data.aboutMe || "",
+    visibility: data.visibility || "PRIVATE",
+
+    educationLevel:
+      education?.educationLevel || "",
+
+    educationStream:
+      education?.educationStream || "",
+
+    qualification:
+      education?.qualification || "",
+
+    specialization:
+      education?.specialization || "",
+
+    instituteName:
+      education?.instituteName || "",
+
+    passingYear:
+      education?.passingYear !== null &&
+      education?.passingYear !== undefined
+        ? String(education.passingYear)
+        : "",
+
+    fatherName: family?.fatherName || "",
+    fatherOccupation: family?.fatherOccupation || "",
+    motherName: family?.motherName || "",
+    motherOccupation: family?.motherOccupation || "",
+
+    siblingsCount:
+      family?.siblingsCount !== null &&
+      family?.siblingsCount !== undefined
+        ? String(family.siblingsCount)
+        : "",
+
+    brothersCount:
+      family?.brothersCount !== null &&
+      family?.brothersCount !== undefined
+        ? String(family.brothersCount)
+        : "",
+
+    sistersCount:
+      family?.sistersCount !== null &&
+      family?.sistersCount !== undefined
+        ? String(family.sistersCount)
+        : "",
+
+
+    familyAbout: family?.familyAbout || "",
+
+    numberOfBrothers:
+      family?.numberOfBrothers !== null &&
+      family?.numberOfBrothers !== undefined
+        ? String(family.numberOfBrothers)
+        : "",
+
+    brothersMarried:
+      family?.brothersMarried !== null &&
+      family?.brothersMarried !== undefined
+        ? String(family.brothersMarried)
+        : "",
+
+    numberOfSisters:
+      family?.numberOfSisters !== null &&
+      family?.numberOfSisters !== undefined
+        ? String(family.numberOfSisters)
+        : "",
+
+    sistersMarried:
+      family?.sistersMarried !== null &&
+      family?.sistersMarried !== undefined
+        ? String(family.sistersMarried)
+        : "",
+
+    familyType: family?.familyType || "",
+    familyValues: family?.familyValues || "",
+    familyStatus: family?.familyStatus || "",
+    parentalDetails: family?.parentalDetails || "",
+
   });
 
   const loadProfile = async (
@@ -377,12 +772,31 @@ function App() {
     setProfileError("");
 
     try {
-      const data = await getMyProfile(token);
+    const data = await getMyProfile(token);
+      const education = data
+        ? await getMyEducation(token)
+        : null;
+
+      const family = data
+        ? await getMyFamily(token)
+        : null;
+
+      const loadedRelatives = data
+        ? await getMyRelatives(token)
+        : [];
 
       setProfile(data);
 
+      setRelatives(loadedRelatives);
+
       if (data) {
-        setProfileForm(profileToForm(data));
+        setProfileForm(
+          profileToForm(
+            data,
+            family,
+            education,
+          )
+        );
       }
 
       if (openEditor) {
@@ -412,6 +826,86 @@ function App() {
     }));
     setProfileError("");
     setProfileMessage("");
+  };
+
+  const handlePhotoSelect = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(event.target.files || []);
+
+    if (!files.length) return;
+
+    setPhotoError("");
+
+    const availableSlots = 6 - profilePhotos.length;
+
+    if (availableSlots <= 0) {
+      setPhotoError("जास्तीत जास्त 6 फोटो अपलोड करता येतील.");
+      event.target.value = "";
+      return;
+    }
+
+    const selectedFiles = files.slice(0, availableSlots);
+
+    if (files.length > availableSlots) {
+      setPhotoError(
+        "जास्तीत जास्त 6 फोटो ठेवता येतील. उर्वरित फोटो निवडले गेले नाहीत.",
+      );
+    }
+
+    const invalidFile = selectedFiles.find(
+      (file) =>
+        !file.type.startsWith("image/") ||
+        file.size > 5 * 1024 * 1024,
+    );
+
+    if (invalidFile) {
+      setPhotoError(
+        "फोटो JPG, PNG किंवा WebP असावा आणि आकार 5 MB पेक्षा कमी असावा.",
+      );
+      event.target.value = "";
+      return;
+    }
+
+    const newPhotos = selectedFiles.map((file, index) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}-${index}`,
+      file,
+      preview: URL.createObjectURL(file),
+      isPrimary: profilePhotos.length === 0 && index === 0,
+    }));
+
+    setProfilePhotos((current) => [...current, ...newPhotos]);
+    event.target.value = "";
+  };
+
+  const removeProfilePhoto = (id: string) => {
+    setProfilePhotos((current) => {
+      const removed = current.find((photo) => photo.id === id);
+
+      if (removed) URL.revokeObjectURL(removed.preview);
+
+      const remaining = current.filter((photo) => photo.id !== id);
+
+      if (removed?.isPrimary && remaining.length > 0) {
+        return remaining.map((photo, index) => ({
+          ...photo,
+          isPrimary: index === 0,
+        }));
+      }
+
+      return remaining;
+    });
+
+    setPhotoError("");
+  };
+
+  const setPrimaryProfilePhoto = (id: string) => {
+    setProfilePhotos((current) =>
+      current.map((photo) => ({
+        ...photo,
+        isPrimary: photo.id === id,
+      })),
+    );
   };
 
   const handleProfileSubmit = async (
@@ -444,22 +938,99 @@ function App() {
       dateOfBirth: profileForm.dateOfBirth,
       maritalStatus:
         profileForm.maritalStatus || undefined,
+
+      timeOfBirth:
+        profileForm.timeOfBirth.trim() || undefined,
+      birthPlace:
+        profileForm.birthPlace.trim() || undefined,
+      numberOfChildren:
+        profileForm.numberOfChildren
+          ? Number(profileForm.numberOfChildren)
+          : undefined,
+
       heightCm: profileForm.heightCm
         ? Number(profileForm.heightCm)
         : undefined,
       weightKg: profileForm.weightKg
         ? Number(profileForm.weightKg)
         : undefined,
+
+      bloodGroup:
+        profileForm.bloodGroup || undefined,
+      complexion:
+        profileForm.complexion || undefined,
+      bodyType:
+        profileForm.bodyType || undefined,
+
+      physicalDisability:
+        profileForm.physicalDisability === "true",
+      disabilityDetails:
+        profileForm.disabilityDetails.trim() || undefined,
+
       religion:
         profileForm.religion.trim() || undefined,
       caste:
         profileForm.caste.trim() || undefined,
       subCaste:
         profileForm.subCaste.trim() || undefined,
+      gotra:
+        profileForm.gotra.trim() || undefined,
+      zodiacSign:
+        profileForm.zodiacSign.trim() || undefined,
+      nakshatra:
+        profileForm.nakshatra.trim() || undefined,
+      manglikStatus:
+        profileForm.manglikStatus || undefined,
       motherTongue:
         profileForm.motherTongue.trim() || undefined,
+
+      eatingHabits:
+        profileForm.eatingHabits || undefined,
+      drinkingHabits:
+        profileForm.drinkingHabits || undefined,
+      smokingHabits:
+        profileForm.smokingHabits || undefined,
+
+      currentCountry:
+        profileForm.currentCountry.trim() || "India",
+      currentAddress:
+        profileForm.currentAddress.trim() || undefined,
+      currentPincode:
+        profileForm.currentPincode.trim() || undefined,
+
+      state:
+        profileForm.state.trim() || undefined,
+      district:
+        profileForm.district.trim() || undefined,
+      taluka:
+        profileForm.taluka.trim() || undefined,
+      city:
+        profileForm.city.trim() || undefined,
+
+      nativeCountry:
+        profileForm.nativeCountry.trim() || "India",
+      nativeState:
+        profileForm.nativeState.trim() || undefined,
+      nativeDistrict:
+        profileForm.nativeDistrict.trim() || undefined,
+      nativeTaluka:
+        profileForm.nativeTaluka.trim() || undefined,
+      nativeCity:
+        profileForm.nativeCity.trim() || undefined,
+      nativePlace:
+        profileForm.nativePlace.trim() || undefined,
+
+      nri: profileForm.nri === "true",
+      livingCountry:
+        profileForm.livingCountry.trim() || undefined,
+      nriAddress:
+        profileForm.nriAddress.trim() || undefined,
+
       aboutMe:
         profileForm.aboutMe.trim() || undefined,
+
+      visibility:
+        profileForm.visibility || "PRIVATE",
     };
 
     if (
@@ -469,9 +1040,10 @@ function App() {
       !payload.dateOfBirth
     ) {
       setProfileError(
-        "कृपया सर्व आवश्यक माहिती भरा.",
+        "कृपया नाव, लिंग आणि जन्मतारीख भरा.",
       );
       setProfileSaving(false);
+      setProfileStep(1);
       return;
     }
 
@@ -480,10 +1052,9 @@ function App() {
       (!Number.isFinite(payload.heightCm) ||
         payload.heightCm <= 0)
     ) {
-      setProfileError(
-        "उंची शून्यापेक्षा जास्त असावी.",
-      );
+      setProfileError("उंची शून्यापेक्षा जास्त असावी.");
       setProfileSaving(false);
+      setProfileStep(1);
       return;
     }
 
@@ -492,10 +1063,22 @@ function App() {
       (!Number.isFinite(payload.weightKg) ||
         payload.weightKg <= 0)
     ) {
+      setProfileError("वजन शून्यापेक्षा जास्त असावे.");
+      setProfileSaving(false);
+      setProfileStep(1);
+      return;
+    }
+
+    if (
+      payload.numberOfChildren !== undefined &&
+      (!Number.isFinite(payload.numberOfChildren) ||
+        payload.numberOfChildren < 0)
+    ) {
       setProfileError(
-        "वजन शून्यापेक्षा जास्त असावे.",
+        "मुलांची संख्या 0 किंवा त्यापेक्षा जास्त असावी.",
       );
       setProfileSaving(false);
+      setProfileStep(1);
       return;
     }
 
@@ -504,14 +1087,121 @@ function App() {
         ? await updateMyProfile(token, payload)
         : await createProfile(token, payload);
 
+      const educationData = {
+        educationLevel:
+          profileForm.educationLevel || undefined,
+
+        educationStream:
+          profileForm.educationStream || undefined,
+
+        qualification:
+          profileForm.qualification.trim() || undefined,
+
+        specialization:
+          profileForm.specialization.trim() || undefined,
+
+        instituteName:
+          profileForm.instituteName.trim() || undefined,
+
+        passingYear:
+          profileForm.passingYear
+            ? Number(profileForm.passingYear)
+            : undefined,
+      };
+
+      const savedEducation =
+        await createOrUpdateEducation(
+          token,
+          educationData,
+        );
+
+
+      const familyData = {
+        fatherName:
+          profileForm.fatherName.trim() || undefined,
+
+        fatherOccupation:
+          profileForm.fatherOccupation.trim() || undefined,
+
+        motherName:
+          profileForm.motherName.trim() || undefined,
+
+        motherOccupation:
+          profileForm.motherOccupation.trim() || undefined,
+
+        familyType:
+          profileForm.familyType || undefined,
+
+        familyValues:
+          profileForm.familyValues || undefined,
+
+        familyStatus:
+          profileForm.familyStatus || undefined,
+
+        siblingsCount:
+          profileForm.siblingsCount
+            ? Number(profileForm.siblingsCount)
+            : undefined,
+
+        brothersCount:
+          profileForm.brothersCount
+            ? Number(profileForm.brothersCount)
+            : undefined,
+
+        sistersCount:
+          profileForm.sistersCount
+            ? Number(profileForm.sistersCount)
+            : undefined,
+
+        nativePlace:
+          profileForm.nativePlace.trim() || undefined,
+
+        familyAbout:
+          profileForm.familyAbout.trim() || undefined,
+
+        numberOfBrothers:
+          profileForm.numberOfBrothers
+            ? Number(profileForm.numberOfBrothers)
+            : undefined,
+
+        brothersMarried:
+          profileForm.brothersMarried
+            ? Number(profileForm.brothersMarried)
+            : undefined,
+
+        numberOfSisters:
+          profileForm.numberOfSisters
+            ? Number(profileForm.numberOfSisters)
+            : undefined,
+
+        sistersMarried:
+          profileForm.sistersMarried
+            ? Number(profileForm.sistersMarried)
+            : undefined,
+
+        parentalDetails:
+          profileForm.parentalDetails.trim() || undefined,
+      };
+
+      const savedFamily =
+        await createOrUpdateFamily(token, familyData);
+
       setProfile(savedProfile);
-      setProfileForm(profileToForm(savedProfile));
+
+      setProfileForm(
+        profileToForm(
+          savedProfile,
+          savedFamily,
+          savedEducation,
+        ),
+      );
 
       setProfileMessage(
         profile
           ? "तुमचे प्रोफाइल यशस्वीरीत्या अपडेट झाले आहे."
           : "तुमचे प्रोफाइल यशस्वीरीत्या तयार झाले आहे.",
       );
+
       setTimeout(() => {
         setProfileView(false);
         setProfileMessage("");
@@ -519,8 +1209,7 @@ function App() {
           top: 0,
           behavior: "smooth",
         });
-      }, 800);      
-     
+      }, 900);
     } catch (error) {
       setProfileError(
         error instanceof Error
@@ -551,11 +1240,7 @@ function App() {
     setProfileStep(1);
     setProfileView(true);
 
-    const data = await loadProfile(token, true);
-
-    if (data) {
-      setProfileForm(profileToForm(data));
-    }
+    await loadProfile(token, true);
   };
 
   const closeProfileView = () => {
@@ -951,6 +1636,32 @@ function App() {
                 setAuthMessage(
                   "पेमेंट यशस्वी झाले! तुमचे सदस्यत्व सक्रिय झाले आहे.",
                 );
+
+            const paidProfile =
+              await getMyProfile(token);
+
+            const paidFamily =
+              await getMyFamily(token);
+
+            setProfile(paidProfile);
+
+            if (paidProfile) {
+              setProfileForm(
+                profileToForm(
+                  paidProfile,
+                  paidFamily,
+                ),
+              );
+            } else {
+              setProfileForm({
+                ...emptyProfileForm,
+              });
+            }
+
+                setProfileStep(1);
+                setModal(null);
+                setProfileView(true);
+
               } catch (error) {
                 setMembershipError(
                   error instanceof Error
@@ -1156,17 +1867,14 @@ function App() {
                   <span className="section-kicker">
                     विवाहजोडी
                   </span>
-
                   <h1 id="profile-page-title">
                     {profile
                       ? "माझे प्रोफाइल अपडेट करा"
                       : "तुमचे प्रोफाइल तयार करा"}
                   </h1>
-
                   <p>
-                    तुमची माहिती पूर्ण करा. तुम्ही
-                    पडताळणी सुरू असतानाही तुमचे प्रोफाइल
-                    कधीही अपडेट करू शकता.
+                    तुमची माहिती पूर्ण करा. पडताळणी सुरू
+                    असतानाही तुम्ही तुमचे प्रोफाइल अपडेट करू शकता.
                   </p>
                 </div>
 
@@ -1190,132 +1898,83 @@ function App() {
                   className="profile-form-card profile-wizard-card"
                   onSubmit={handleProfileSubmit}
                 >
-                  {/* =================================================
-                      PROFILE STATUS
-                      ================================================= */}
-
                   <div className="profile-status-banner">
                     <div>
                       <span>प्रोफाइल स्थिती</span>
-
                       <strong>
                         {profile?.profileStatus || "DRAFT"}
                       </strong>
                     </div>
-
                     <p>
                       {profile?.profileStatus === "ACTIVE"
                         ? "तुमचे प्रोफाइल सक्रिय आहे."
-                        : "तुमचे प्रोफाइल प्रशासनाच्या पडताळणीसाठी तयार आहे. तुम्ही माहिती अपडेट करू शकता."}
+                        : "तुम्ही माहिती पूर्ण करून प्रोफाइल प्रशासनाच्या पडताळणीसाठी तयार करू शकता."}
                     </p>
                   </div>
-
-                  {/* =================================================
-                      PROGRESS HEADER
-                      ================================================= */}
 
                   <div className="profile-wizard-intro">
                     <div>
                       <span className="profile-wizard-eyebrow">
                         तुमची ओळख
                       </span>
-
                       <h2>
                         तुमची सुंदर ओळख,<br />
                         <em>तुमच्या शब्दांत</em>
                       </h2>
-
                       <p>
-                        काही सोप्या टप्प्यांमध्ये तुमचे प्रोफाइल
-                        पूर्ण करा.
+                        खालील टप्प्यांमध्ये तुमचे संपूर्ण
+                        वैवाहिक प्रोफाइल तयार करा.
                       </p>
                     </div>
-
                     <div className="profile-wizard-count">
                       <strong>{profileStep}</strong>
-                      <span>/ 4</span>
+                      <span>/ {profileStepLabels.length}</span>
                     </div>
                   </div>
-
-                  {/* =================================================
-                      STEP PROGRESS
-                      ================================================= */}
 
                   <div
                     className="profile-stepper"
                     aria-label="प्रोफाइल प्रगती"
                   >
-                    <div
-                      className={`profile-step-item ${
-                        profileStep >= 1 ? "active" : ""
-                      } ${profileStep > 1 ? "completed" : ""}`}
-                    >
-                      <div className="profile-step-circle">
-                        {profileStep > 1 ? "✓" : "01"}
-                      </div>
+                    {profileStepLabels.map((label, index) => {
+                      const step = index + 1;
+                      return (
+                        <div
+                          key={label}
+                          style={{
+                            display: "contents",
+                          }}
+                        >
+                          <div
+                            className={`profile-step-item ${
+                              profileStep >= step ? "active" : ""
+                            } ${
+                              profileStep > step ? "completed" : ""
+                            }`}
+                          >
+                            <div className="profile-step-circle">
+                              {profileStep > step
+                                ? "✓"
+                                : String(step).padStart(2, "0")}
+                            </div>
+                            <span>{label}</span>
+                          </div>
 
-                      <span>मूलभूत</span>
-                    </div>
-
-                    <div
-                      className={`profile-step-line ${
-                        profileStep > 1 ? "active" : ""
-                      }`}
-                    />
-
-                    <div
-                      className={`profile-step-item ${
-                        profileStep >= 2 ? "active" : ""
-                      } ${profileStep > 2 ? "completed" : ""}`}
-                    >
-                      <div className="profile-step-circle">
-                        {profileStep > 2 ? "✓" : "02"}
-                      </div>
-
-                      <span>व्यक्तिमत्व</span>
-                    </div>
-
-                    <div
-                      className={`profile-step-line ${
-                        profileStep > 2 ? "active" : ""
-                      }`}
-                    />
-
-                    <div
-                      className={`profile-step-item ${
-                        profileStep >= 3 ? "active" : ""
-                      } ${profileStep > 3 ? "completed" : ""}`}
-                    >
-                      <div className="profile-step-circle">
-                        {profileStep > 3 ? "✓" : "03"}
-                      </div>
-
-                      <span>कुटुंब</span>
-                    </div>
-
-                    <div
-                      className={`profile-step-line ${
-                        profileStep > 3 ? "active" : ""
-                      }`}
-                    />
-
-                    <div
-                      className={`profile-step-item ${
-                        profileStep >= 4 ? "active" : ""
-                      }`}
-                    >
-                      <div className="profile-step-circle">
-                        04
-                      </div>
-
-                      <span>माझ्याबद्दल</span>
-                    </div>
+                          {step < profileStepLabels.length && (
+                            <div
+                              className={`profile-step-line ${
+                                profileStep > step ? "active" : ""
+                              }`}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* =================================================
-                      STEP 1 — BASIC INFORMATION
+                      STEP 1 — BASIC
                       ================================================= */}
-
                   {profileStep === 1 && (
                     <div className="profile-wizard-panel">
                       <div className="profile-form-section profile-wizard-section">
@@ -1324,17 +1983,14 @@ function App() {
                             <span className="profile-section-number">
                               01
                             </span>
-
                             <h2>मूलभूत माहिती</h2>
                           </div>
-
                           <span>* आवश्यक माहिती</span>
                         </div>
 
                         <div className="profile-form-grid">
                           <label>
                             <span>पहिले नाव *</span>
-
                             <input
                               type="text"
                               value={profileForm.firstName}
@@ -1351,7 +2007,6 @@ function App() {
 
                           <label>
                             <span>मधले नाव</span>
-
                             <input
                               type="text"
                               value={profileForm.middleName}
@@ -1367,7 +2022,6 @@ function App() {
 
                           <label>
                             <span>आडनाव *</span>
-
                             <input
                               type="text"
                               value={profileForm.lastName}
@@ -1384,7 +2038,6 @@ function App() {
 
                           <label>
                             <span>लिंग *</span>
-
                             <select
                               value={profileForm.gender}
                               onChange={(event) =>
@@ -1404,7 +2057,6 @@ function App() {
 
                           <label>
                             <span>जन्मतारीख *</span>
-
                             <input
                               type="date"
                               value={profileForm.dateOfBirth}
@@ -1419,8 +2071,36 @@ function App() {
                           </label>
 
                           <label>
-                            <span>वैवाहिक स्थिती</span>
+                            <span>जन्मवेळ</span>
+                            <input
+                              type="time"
+                              value={profileForm.timeOfBirth}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "timeOfBirth",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
 
+                          <label>
+                            <span>जन्मस्थळ</span>
+                            <input
+                              type="text"
+                              value={profileForm.birthPlace}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "birthPlace",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="शहर / गाव"
+                            />
+                          </label>
+
+                          <label>
+                            <span>वैवाहिक स्थिती</span>
                             <select
                               value={profileForm.maritalStatus}
                               onChange={(event) =>
@@ -1433,84 +2113,36 @@ function App() {
                               <option value="NEVER_MARRIED">
                                 अविवाहित
                               </option>
-
                               <option value="DIVORCED">
                                 घटस्फोटित
                               </option>
-
                               <option value="WIDOWED">
                                 विधवा / विधुर
                               </option>
-
                               <option value="SEPARATED">
                                 विभक्त
                               </option>
                             </select>
                           </label>
-                        </div>
-                      </div>
 
-                      <div className="profile-wizard-actions">
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={closeProfileView}
-                        >
-                          ← बाहेर पडा
-                        </button>
+                          <label>
+                            <span>मुलांची संख्या</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.numberOfChildren}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "numberOfChildren",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="0"
+                            />
+                          </label>
 
-                        <button
-                          type="button"
-                          className="auth-submit profile-next-button"
-                          onClick={() => {
-                            if (
-                              !profileForm.firstName.trim() ||
-                              !profileForm.lastName.trim() ||
-                              !profileForm.gender ||
-                              !profileForm.dateOfBirth
-                            ) {
-                              setProfileError(
-                                "कृपया पुढे जाण्यापूर्वी सर्व आवश्यक माहिती भरा.",
-                              );
-                              return;
-                            }
-
-                            setProfileError("");
-                            setProfileStep(2);
-                            window.scrollTo({
-                              top: 0,
-                              behavior: "smooth",
-                            });
-                          }}
-                        >
-                          पुढे जा
-                          <span>→</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* =================================================
-                      STEP 2 — PERSONALITY / PHYSICAL
-                      ================================================= */}
-
-                  {profileStep === 2 && (
-                    <div className="profile-wizard-panel">
-                      <div className="profile-form-section profile-wizard-section">
-                        <div className="profile-form-section-heading">
-                          <div>
-                            <span className="profile-section-number">
-                              02
-                            </span>
-
-                            <h2>व्यक्तिमत्व व शारीरिक माहिती</h2>
-                          </div>
-                        </div>
-
-                        <div className="profile-form-grid">
                           <label>
                             <span>उंची (सेमी)</span>
-
                             <input
                               type="number"
                               min="1"
@@ -1527,7 +2159,6 @@ function App() {
 
                           <label>
                             <span>वजन (किलो)</span>
-
                             <input
                               type="number"
                               min="1"
@@ -1541,22 +2172,72 @@ function App() {
                               placeholder="उदा. 65"
                             />
                           </label>
-                        </div>
 
-                        <div className="profile-step-tip">
-                          <span>✦</span>
+                          <label>
+                            <span>रक्तगट</span>
+                            <select
+                              value={profileForm.bloodGroup}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "bloodGroup",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              {[
+                                "A+",
+                                "A-",
+                                "B+",
+                                "B-",
+                                "AB+",
+                                "AB-",
+                                "O+",
+                                "O-",
+                              ].map((group) => (
+                                <option key={group} value={group}>
+                                  {group}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
 
-                          <div>
-                            <strong>
-                              तुमच्याबद्दल योग्य माहिती द्या
-                            </strong>
+                          <label>
+                            <span>वर्ण</span>
+                            <select
+                              value={profileForm.complexion}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "complexion",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="FAIR">गोरा</option>
+                              <option value="WHEATISH">गव्हाळ</option>
+                              <option value="DARK">सावळा</option>
+                            </select>
+                          </label>
 
-                            <p>
-                              योग्य माहितीमुळे इतर सदस्यांना
-                              तुमचे प्रोफाइल अधिक चांगल्या प्रकारे
-                              समजण्यास मदत होते.
-                            </p>
-                          </div>
+                          <label>
+                            <span>शरीरयष्टी</span>
+                            <select
+                              value={profileForm.bodyType}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "bodyType",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="SLIM">सडपातळ</option>
+                              <option value="AVERAGE">मध्यम</option>
+                              <option value="ATHLETIC">ऍथलेटिक</option>
+                              <option value="HEAVY">भरदार</option>
+                            </select>
+                          </label>
                         </div>
                       </div>
 
@@ -1564,55 +2245,57 @@ function App() {
                         <button
                           type="button"
                           className="secondary-button"
-                          onClick={() => {
-                            setProfileError("");
-                            setProfileStep(1);
-                          }}
+                          onClick={closeProfileView}
                         >
-                          ← मागे
+                          ← बाहेर पडा
                         </button>
-
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
                           onClick={() => {
+                            if (
+                              !profileForm.firstName.trim() ||
+                              !profileForm.lastName.trim() ||
+                              !profileForm.gender ||
+                              !profileForm.dateOfBirth
+                            ) {
+                              setProfileError(
+                                "कृपया पुढे जाण्यापूर्वी सर्व आवश्यक माहिती भरा.",
+                              );
+                              return;
+                            }
                             setProfileError("");
-                            setProfileStep(3);
-
+                            setProfileStep(2);
                             window.scrollTo({
                               top: 0,
                               behavior: "smooth",
                             });
                           }}
                         >
-                          पुढे जा
-                          <span>→</span>
+                          पुढे जा <span>→</span>
                         </button>
                       </div>
                     </div>
                   )}
 
                   {/* =================================================
-                      STEP 3 — FAMILY & CULTURAL
+                      STEP 2 — RELIGION / COMMUNITY
                       ================================================= */}
-
-                  {profileStep === 3 && (
+                  {profileStep === 2 && (
                     <div className="profile-wizard-panel">
                       <div className="profile-form-section profile-wizard-section">
                         <div className="profile-form-section-heading">
                           <div>
                             <span className="profile-section-number">
-                              03
+                              02
                             </span>
-
-                            <h2>कुटुंब व सांस्कृतिक माहिती</h2>
+                            <h2>धर्म व समाज</h2>
                           </div>
                         </div>
 
                         <div className="profile-form-grid">
                           <label>
                             <span>धर्म</span>
-
                             <input
                               type="text"
                               value={profileForm.religion}
@@ -1628,7 +2311,6 @@ function App() {
 
                           <label>
                             <span>जात</span>
-
                             <input
                               type="text"
                               value={profileForm.caste}
@@ -1644,7 +2326,6 @@ function App() {
 
                           <label>
                             <span>पोटजात</span>
-
                             <input
                               type="text"
                               value={profileForm.subCaste}
@@ -1659,8 +2340,70 @@ function App() {
                           </label>
 
                           <label>
-                            <span>मातृभाषा</span>
+                            <span>गोत्र</span>
+                            <input
+                              type="text"
+                              value={profileForm.gotra}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "gotra",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. कश्यप"
+                            />
+                          </label>
 
+                          <label>
+                            <span>रास / राशी</span>
+                            <input
+                              type="text"
+                              value={profileForm.zodiacSign}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "zodiacSign",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. मेष"
+                            />
+                          </label>
+
+                          <label>
+                            <span>नक्षत्र</span>
+                            <input
+                              type="text"
+                              value={profileForm.nakshatra}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nakshatra",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. रोहिणी"
+                            />
+                          </label>
+
+                          <label>
+                            <span>मंगळिक स्थिती</span>
+                            <select
+                              value={profileForm.manglikStatus}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "manglikStatus",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="YES">होय</option>
+                              <option value="NO">नाही</option>
+                              <option value="UNKNOWN">माहित नाही</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>मातृभाषा</span>
                             <input
                               type="text"
                               value={profileForm.motherTongue}
@@ -1680,10 +2423,1266 @@ function App() {
                         <button
                           type="button"
                           className="secondary-button"
+                          onClick={() => setProfileStep(1)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
                           onClick={() => {
                             setProfileError("");
-                            setProfileStep(2);
+                            setProfileStep(3);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 3 — EDUCATION
+                      ================================================= */}
+                  {profileStep === 3 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">03</span>
+                            <h2>शिक्षण</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>शिक्षण स्तर</span>
+                            <select
+                              value={profileForm.educationLevel}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "educationLevel",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="10TH">१० वी</option>
+                              <option value="12TH">१२ वी</option>
+                              <option value="DIPLOMA">डिप्लोमा</option>
+                              <option value="ITI">ITI</option>
+                              <option value="UG">पदवी</option>
+                              <option value="PG">पदव्युत्तर</option>
+                              <option value="DOCTORATE">डॉक्टरेट</option>
+                              <option value="PROFESSIONAL">
+                                व्यावसायिक
+                              </option>
+                              <option value="OTHER">इतर</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>शिक्षण शाखा / Stream</span>
+                            <select
+                              value={profileForm.educationStream}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "educationStream",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="ARTS">कला</option>
+                              <option value="COMMERCE">वाणिज्य</option>
+                              <option value="SCIENCE">विज्ञान</option>
+                              <option value="ENGINEERING">अभियांत्रिकी</option>
+                              <option value="MEDICAL">वैद्यकीय</option>
+                              <option value="LAW">कायदा</option>
+                              <option value="MANAGEMENT">व्यवस्थापन</option>
+                              <option value="COMPUTER_IT">कॉम्प्युटर / IT</option>
+                              <option value="AGRICULTURE">कृषी</option>
+                              <option value="PHARMACY">फार्मसी</option>
+                              <option value="ARCHITECTURE">आर्किटेक्चर</option>
+                              <option value="EDUCATION">शिक्षण</option>
+                              <option value="FINE_ARTS">ललित कला</option>
+                              <option value="HOTEL_MANAGEMENT">
+                                हॉटेल मॅनेजमेंट
+                              </option>
+                              <option value="OTHER">इतर</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>पदवी / Qualification</span>
+                            <input
+                              type="text"
+                              value={profileForm.qualification}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "qualification",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. B.E., B.Com., M.B.A."
+                            />
+                          </label>
+
+                          <label>
+                            <span>विशेषीकरण</span>
+                            <input
+                              type="text"
+                              value={profileForm.specialization}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "specialization",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. Computer Engineering"
+                            />
+                          </label>
+
+                          <label>
+                            <span>महाविद्यालय / संस्था</span>
+                            <input
+                              type="text"
+                              value={profileForm.instituteName}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "instituteName",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="संस्थेचे नाव"
+                            />
+                          </label>
+
+                          <label>
+                            <span>उत्तीर्ण वर्ष</span>
+                            <input
+                              type="number"
+                              min="1950"
+                              max="2100"
+                              value={profileForm.passingYear}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "passingYear",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. 2024"
+                            />
+                          </label>
+                        </div>
+
+                        <div className="profile-step-tip">
+                          <span>✦</span>
+                          <div>
+                            <strong>संपूर्ण शिक्षण माहिती द्या</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(2)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(4)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 4 — FAMILY
+                      ================================================= */}
+                  {profileStep === 4 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">04</span>
+                            <h2>कुटुंब माहिती</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>वडिलांचे नाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.fatherName}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "fatherName",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>वडिलांचा व्यवसाय</span>
+                            <input
+                              type="text"
+                              value={profileForm.fatherOccupation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "fatherOccupation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>आईचे नाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.motherName}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "motherName",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>आईचा व्यवसाय</span>
+                            <input
+                              type="text"
+                              value={profileForm.motherOccupation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "motherOccupation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>भाऊ</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.numberOfBrothers}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "numberOfBrothers",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>विवाहित भाऊ</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.brothersMarried}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "brothersMarried",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>बहिणी</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.numberOfSisters}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "numberOfSisters",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>विवाहित बहिणी</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.sistersMarried}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "sistersMarried",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कुटुंब प्रकार</span>
+                            <select
+                              value={profileForm.familyType}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "familyType",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="JOINT">संयुक्त</option>
+                              <option value="NUCLEAR">विभक्त</option>
+                              <option value="OTHER">इतर</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>कुटुंब मूल्ये</span>
+                            <select
+                              value={profileForm.familyValues}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "familyValues",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="TRADITIONAL">पारंपरिक</option>
+                              <option value="MODERATE">मध्यम</option>
+                              <option value="LIBERAL">आधुनिक</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>कुटुंबाचा सामाजिक स्तर</span>
+                            <input
+                              type="text"
+                              value={profileForm.familyStatus}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "familyStatus",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. उच्च मध्यमवर्गीय"
+                            />
+                          </label>
+
+                          <label>
+                            <span>कौटुंबिक / पालकांविषयी अधिक माहिती</span>
+                            <input
+                              type="text"
+                              value={profileForm.parentalDetails}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "parentalDetails",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(3)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(5)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 5 — RELATIVES
+                      ================================================= */}
+                  {profileStep === 5 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">05</span>
+                            <h2>नातेवाईक</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-step-tip">
+                          <span>✦</span>
+                          <div>
+                            <strong>नातेवाईकांची माहिती</strong>
+                            <p>
+                              एकापेक्षा जास्त नातेवाईक जोडता येतील. प्रत्येक
+                              नातेवाईक स्वतंत्रपणे जतन केला जाईल.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* =================================================
+                            SAVED RELATIVES
+                            ================================================= */}
+                        {relatives.length > 0 && (
+                          <div className="profile-form-section">
+
+                            <div className="profile-form-section-heading">
+                              <div>
+                                <span className="profile-section-number">01</span>
+                                <h3>जतन केलेले नातेवाईक</h3>
+                              </div>
+                            </div>
+
+                            <div className="profile-form-grid">
+
+                              {relatives.map((relative) => {
+
+                                const isEditing =
+                                  editingRelativeId === relative.id;
+
+                                return (
+                                  <div
+                                    key={relative.id}
+                                    className="profile-step-tip"
+                                    style={{
+                                      gridColumn: "1 / -1",
+                                    }}
+                                  >
+
+                                    {/* =================================================
+                                        NORMAL VIEW
+                                        ================================================= */}
+                                    {!isEditing && (
+                                      <div style={{ width: "100%" }}>
+
+                                        <strong>
+                                          {relative.name || "नातेवाईक"}
+                                          {relative.relation
+                                            ? ` — ${relative.relation}`
+                                            : ""}
+                                        </strong>
+
+                                        <p>
+                                          {relative.surname
+                                            ? `आडनाव: ${relative.surname} • `
+                                            : ""}
+
+                                          {relative.city
+                                            ? `शहर: ${relative.city} • `
+                                            : ""}
+
+                                          {relative.occupation
+                                            ? `व्यवसाय: ${relative.occupation}`
+                                            : ""}
+                                        </p>
+
+                                        {relative.location && (
+                                          <p>
+                                            ठिकाण: {relative.location}
+                                          </p>
+                                        )}
+
+                                        {relative.notes && (
+                                          <p>
+                                            अधिक माहिती: {relative.notes}
+                                          </p>
+                                        )}
+
+                                        <p>
+                                          संपर्क माहिती दृश्यमान:{" "}
+                                          {relative.contactVisible
+                                            ? "होय"
+                                            : "नाही"}
+                                        </p>
+
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            gap: "10px",
+                                            marginTop: "12px",
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+
+                                          {/* EDIT */}
+                                          <button
+                                            type="button"
+                                            className="secondary-button"
+                                            onClick={() => {
+                                              setEditingRelativeId(
+                                                relative.id,
+                                              );
+
+                                              setEditingRelativeForm({
+                                                name:
+                                                  relative.name || "",
+                                                relation:
+                                                  relative.relation || "",
+                                                surname:
+                                                  relative.surname || "",
+                                                city:
+                                                  relative.city || "",
+                                                occupation:
+                                                  relative.occupation || "",
+                                                location:
+                                                  relative.location || "",
+                                                notes:
+                                                  relative.notes || "",
+                                                contactVisible:
+                                                  relative.contactVisible ??
+                                                  false,
+                                              });
+
+                                              setProfileError("");
+                                              setProfileMessage("");
+                                            }}
+                                          >
+                                            संपादित करा
+                                          </button>
+
+                                          {/* DELETE */}
+                                          <button
+                                            type="button"
+                                            className="secondary-button"
+                                            onClick={async () => {
+
+                                              const confirmed =
+                                                window.confirm(
+                                                  "हा नातेवाईक हटवायचा आहे का?",
+                                                );
+
+                                              if (!confirmed) {
+                                                return;
+                                              }
+
+                                              const token =
+                                                localStorage.getItem(
+                                                  "vivahjodi_token",
+                                                );
+
+                                              if (!token) {
+                                                setProfileError(
+                                                  "लॉगिन सत्र उपलब्ध नाही.",
+                                                );
+                                                return;
+                                              }
+
+                                              try {
+                                                setProfileSaving(true);
+                                                setProfileError("");
+                                                setProfileMessage("");
+
+                                                await deleteRelative(
+                                                  token,
+                                                  relative.id,
+                                                );
+
+                                                setRelatives(
+                                                  (current) =>
+                                                    current.filter(
+                                                      (item) =>
+                                                        item.id !==
+                                                        relative.id,
+                                                    ),
+                                                );
+
+                                                setProfileMessage(
+                                                  "नातेवाईक माहिती हटवली.",
+                                                );
+                                              } catch (error) {
+                                                setProfileError(
+                                                  error instanceof Error
+                                                    ? error.message
+                                                    : "नातेवाईक माहिती हटवताना त्रुटी आली.",
+                                                );
+                                              } finally {
+                                                setProfileSaving(false);
+                                              }
+                                            }}
+                                          >
+                                            हटवा
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* =================================================
+                                        INLINE EDIT FORM
+                                        ================================================= */}
+                                    {isEditing && (
+                                      <div
+                                        style={{
+                                          width: "100%",
+                                        }}
+                                      >
+
+                                        <div
+                                          style={{
+                                            marginBottom: "18px",
+                                          }}
+                                        >
+                                          <strong>
+                                            नातेवाईक माहिती संपादित करा
+                                          </strong>
+                                        </div>
+
+                                        <div className="profile-form-grid">
+
+                                          <label>
+                                            <span>नातेवाईकाचे नाव</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.name
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    name:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>नाते</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.relation
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    relation:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                              placeholder="उदा. मामा, काका, मावशी"
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>आडनाव</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.surname
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    surname:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>शहर</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.city
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    city:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                              placeholder="उदा. पुणे"
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>व्यवसाय</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.occupation
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    occupation:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>ठिकाण</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.location
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    location:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                            />
+                                          </label>
+
+                                          <label>
+                                            <span>अधिक माहिती</span>
+
+                                            <input
+                                              type="text"
+                                              value={
+                                                editingRelativeForm.notes
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    notes:
+                                                      event.target.value,
+                                                  }),
+                                                )
+                                              }
+                                            />
+                                          </label>
+
+                                          <label
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: "10px",
+                                              cursor: "pointer",
+                                            }}
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={
+                                                editingRelativeForm.contactVisible
+                                              }
+                                              onChange={(event) =>
+                                                setEditingRelativeForm(
+                                                  (current) => ({
+                                                    ...current,
+                                                    contactVisible:
+                                                      event.target.checked,
+                                                  }),
+                                                )
+                                              }
+                                            />
+
+                                            <span>
+                                              संपर्क माहिती दृश्यमान ठेवावी
+                                            </span>
+                                          </label>
+
+                                        </div>
+
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            gap: "10px",
+                                            marginTop: "20px",
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+
+                                          {/* SAVE EDIT */}
+                                          <button
+                                            type="button"
+                                            className="auth-submit"
+                                            disabled={profileSaving}
+                                            onClick={async () => {
+
+                                              const token =
+                                                localStorage.getItem(
+                                                  "vivahjodi_token",
+                                                );
+
+                                              if (!token) {
+                                                setProfileError(
+                                                  "लॉगिन सत्र उपलब्ध नाही.",
+                                                );
+                                                return;
+                                              }
+
+                                              if (
+                                                !editingRelativeForm.name.trim() &&
+                                                !editingRelativeForm.relation.trim()
+                                              ) {
+                                                setProfileError(
+                                                  "कृपया नातेवाईकाचे नाव किंवा नाते भरा.",
+                                                );
+                                                return;
+                                              }
+
+                                              if (!editingRelativeId) {
+                                                return;
+                                              }
+
+                                              try {
+                                                setProfileSaving(true);
+                                                setProfileError("");
+                                                setProfileMessage("");
+
+                                                const updated =
+                                                  await updateRelative(
+                                                    token,
+                                                    editingRelativeId,
+                                                    {
+                                                      name:
+                                                        editingRelativeForm.name.trim() ||
+                                                        undefined,
+
+                                                      relation:
+                                                        editingRelativeForm.relation.trim() ||
+                                                        undefined,
+
+                                                      surname:
+                                                        editingRelativeForm.surname.trim() ||
+                                                        undefined,
+
+                                                      city:
+                                                        editingRelativeForm.city.trim() ||
+                                                        undefined,
+
+                                                      occupation:
+                                                        editingRelativeForm.occupation.trim() ||
+                                                        undefined,
+
+                                                      location:
+                                                        editingRelativeForm.location.trim() ||
+                                                        undefined,
+
+                                                      notes:
+                                                        editingRelativeForm.notes.trim() ||
+                                                        undefined,
+
+                                                      contactVisible:
+                                                        editingRelativeForm.contactVisible,
+                                                    },
+                                                  );
+
+                                                setRelatives(
+                                                  (current) =>
+                                                    current.map(
+                                                      (item) =>
+                                                        item.id ===
+                                                        updated.id
+                                                          ? updated
+                                                          : item,
+                                                    ),
+                                                );
+
+                                                setEditingRelativeId(null);
+
+                                                setProfileMessage(
+                                                  "नातेवाईक माहिती अपडेट झाली.",
+                                                );
+                                              } catch (error) {
+                                                setProfileError(
+                                                  error instanceof Error
+                                                    ? error.message
+                                                    : "नातेवाईक माहिती अपडेट करताना त्रुटी आली.",
+                                                );
+                                              } finally {
+                                                setProfileSaving(false);
+                                              }
+                                            }}
+                                          >
+                                            {profileSaving
+                                              ? "जतन करत आहे..."
+                                              : "बदल जतन करा"}
+                                          </button>
+
+                                          {/* CANCEL EDIT */}
+                                          <button
+                                            type="button"
+                                            className="secondary-button"
+                                            disabled={profileSaving}
+                                            onClick={() => {
+                                              setEditingRelativeId(null);
+                                              setProfileError("");
+                                              setProfileMessage("");
+                                            }}
+                                          >
+                                            रद्द करा
+                                          </button>
+
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                            </div>
+                          </div>
+                        )}
+
+                        {/* =================================================
+                            ADD NEW RELATIVE
+                            ================================================= */}
+                        <div className="profile-form-section">
+
+                          <div className="profile-form-section-heading">
+                            <div>
+                              <span className="profile-section-number">02</span>
+                              <h3>नवीन नातेवाईक जोडा</h3>
+                            </div>
+                          </div>
+
+                          <div className="profile-form-grid">
+
+                            <label>
+                              <span>नातेवाईकाचे नाव</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeName}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeName",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="उदा. अमोल"
+                              />
+                            </label>
+
+                            <label>
+                              <span>नाते</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeRelation}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeRelation",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="उदा. मामा, काका, मावशी"
+                              />
+                            </label>
+
+                            <label>
+                              <span>आडनाव</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeSurname}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeSurname",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              <span>शहर</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeLocation}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeCity",
+                                    event.target.value,
+                                  )
+                                }
+                                placeholder="उदा. पुणे"
+                              />
+                            </label>
+
+                            <label>
+                              <span>व्यवसाय</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeOccupation}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeOccupation",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              <span>ठिकाण</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeLocation}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeLocation",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </label>
+
+                            <label>
+                              <span>अधिक माहिती</span>
+
+                              <input
+                                type="text"
+                                value={profileForm.relativeNotes}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "relativeNotes",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </label>
+
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={profileForm.relativeContactVisible}
+                                onChange={(event) => {
+                                    setProfileForm((current) => ({
+                                      ...current,
+                                      relativeContactVisible: event.target.checked,
+                                    }));
+                                  }}
+                                />
+                              <span>
+                                संपर्क माहिती दृश्यमान ठेवावी
+                              </span>
+                            </label>
+
+
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              marginTop: "20px",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              className="auth-submit"
+                              disabled={profileSaving}
+                              onClick={async () => {
+
+                                const token =
+                                  localStorage.getItem(
+                                    "vivahjodi_token",
+                                  );
+
+                                if (!token) {
+                                  setProfileError(
+                                    "लॉगिन सत्र उपलब्ध नाही.",
+                                  );
+                                  return;
+                                }
+
+                                if (
+                                  !profileForm.relativeName.trim() &&
+                                  !profileForm.relativeRelation.trim()
+                                ) {
+                                  setProfileError(
+                                    "कृपया नातेवाईकाचे नाव किंवा नाते भरा.",
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  setProfileSaving(true);
+                                  setProfileError("");
+                                  setProfileMessage("");
+
+                                  const created =
+                                    await createRelative(token, {
+                                      name:
+                                        profileForm.relativeName.trim() ||
+                                        undefined,
+
+                                      relation:
+                                        profileForm.relativeRelation.trim() ||
+                                        undefined,
+
+                                      surname:
+                                        profileForm.relativeSurname.trim() ||
+                                        undefined,
+
+                                      city:
+                                        profileForm.relativeCity.trim() ||
+                                        undefined,
+
+                                      occupation:
+                                        profileForm.relativeOccupation.trim() ||
+                                        undefined,
+
+                                      location:
+                                        profileForm.relativeLocation.trim() ||
+                                        undefined,
+
+                                      notes:
+                                        profileForm.relativeNotes.trim() ||
+                                        undefined,
+
+                                      contactVisible:
+                                        profileForm.relativeContactVisible,
+                                    });
+
+                                  setRelatives(
+                                    (current) => [
+                                      ...current,
+                                      created,
+                                    ],
+                                  );
+
+                                  updateProfileField(
+                                    "relativeName",
+                                    "",
+                                  );
+
+                                  updateProfileField(
+                                    "relativeRelation",
+                                    "",
+                                  );
+
+                                  updateProfileField(
+                                    "relativeSurname",
+                                    "",
+                                  );
+
+                                  updateProfileField(
+                                    "relativeCity",
+                                    "",
+                                  );
+
+
+                                  updateProfileField(
+                                    "relativeOccupation",
+                                    "",
+                                  );
+
+                                  updateProfileField(
+                                    "relativeLocation",
+                                    "",
+                                  );
+
+                                  updateProfileField(
+                                    "relativeNotes",
+                                    "",
+                                  );
+
+                                  setProfileForm((current) => ({
+                                  ...current,
+                                  relativeContactVisible: false,
+                                }));
+
+
+                                  setProfileMessage(
+                                    "नातेवाईक माहिती जतन झाली.",
+                                  );
+                                } catch (error) {
+                                  setProfileError(
+                                    error instanceof Error
+                                      ? error.message
+                                      : "नातेवाईक माहिती जतन करताना त्रुटी आली.",
+                                  );
+                                } finally {
+                                  setProfileSaving(false);
+                                }
+                              }}
+                            >
+                              {profileSaving
+                                ? "जतन करत आहे..."
+                                : "नातेवाईक जोडा"}
+                            </button>
+                          </div>
+                        </div>
+
+                        {profileError && (
+                          <div className="profile-error-message">
+                            {profileError}
+                          </div>
+                        )}
+
+                        {profileMessage && (
+                          <div className="profile-success-message">
+                            {profileMessage}
+                          </div>
+                        )}
+
+                      </div>
+
+                      {/* =================================================
+                          WIZARD NAVIGATION
+                          ================================================= */}
+                      <div className="profile-wizard-actions">
+
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(4)}
                         >
                           ← मागे
                         </button>
@@ -1691,43 +3690,653 @@ function App() {
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => {
-                            setProfileError("");
-                            setProfileStep(4);
-
-                            window.scrollTo({
-                              top: 0,
-                              behavior: "smooth",
-                            });
-                          }}
+                          onClick={() => setProfileStep(6)}
                         >
-                          पुढे जा
-                          <span>→</span>
+                          पुढे जा <span>→</span>
+                        </button>
+
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 6 — OCCUPATION
+                      ================================================= */}
+                  {profileStep === 6 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">06</span>
+                            <h2>व्यवसाय व उत्पन्न</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>व्यवसाय</span>
+                            <input
+                              type="text"
+                              value={profileForm.occupation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "occupation",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. Software Engineer"
+                            />
+                          </label>
+
+                          <label>
+                            <span>उपव्यवसाय</span>
+                            <input
+                              type="text"
+                              value={profileForm.subOccupation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "subOccupation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>नोकरीचा प्रकार</span>
+                            <select
+                              value={profileForm.employmentType}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "employmentType",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="FULL_TIME">पूर्णवेळ</option>
+                              <option value="PART_TIME">अर्धवेळ</option>
+                              <option value="BUSINESS">व्यवसाय</option>
+                              <option value="SELF_EMPLOYED">स्वयंरोजगार</option>
+                              <option value="GOVERNMENT">शासकीय</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>कामाचे क्षेत्र</span>
+                            <input
+                              type="text"
+                              value={profileForm.employedIn}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "employedIn",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="IT / Banking / Government"
+                            />
+                          </label>
+
+                          <label>
+                            <span>कंपनी / संस्थेचे नाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.companyName}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "companyName",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>पद / Designation</span>
+                            <input
+                              type="text"
+                              value={profileForm.designation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "designation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कामाचे ठिकाण</span>
+                            <input
+                              type="text"
+                              value={profileForm.workLocation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "workLocation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>वार्षिक उत्पन्न</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.annualIncome}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "annualIncome",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. 800000"
+                            />
+                          </label>
+
+                          <label>
+                            <span>चलन</span>
+                            <select
+                              value={profileForm.incomeCurrency}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "incomeCurrency",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="INR">INR ₹</option>
+                              <option value="USD">USD $</option>
+                              <option value="GBP">GBP £</option>
+                              <option value="AED">AED</option>
+                            </select>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(5)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(7)}
+                        >
+                          पुढे जा <span>→</span>
                         </button>
                       </div>
                     </div>
                   )}
 
                   {/* =================================================
-                      STEP 4 — ABOUT ME
+                      STEP 7 — LIFESTYLE
                       ================================================= */}
-
-                  {profileStep === 4 && (
+                  {profileStep === 7 && (
                     <div className="profile-wizard-panel">
                       <div className="profile-form-section profile-wizard-section">
                         <div className="profile-form-section-heading">
                           <div>
-                            <span className="profile-section-number">
-                              04
-                            </span>
+                            <span className="profile-section-number">07</span>
+                            <h2>जीवनशैली</h2>
+                          </div>
+                        </div>
 
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>आहार</span>
+                            <select
+                              value={profileForm.eatingHabits}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "eatingHabits",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="VEGETARIAN">शाकाहारी</option>
+                              <option value="NON_VEGETARIAN">
+                                मांसाहारी
+                              </option>
+                              <option value="EGGETARIAN">अंडाहारी</option>
+                              <option value="VEGAN">Vegan</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>मद्यपान</span>
+                            <select
+                              value={profileForm.drinkingHabits}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "drinkingHabits",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="NO">नाही</option>
+                              <option value="OCCASIONAL">कधीतरी</option>
+                              <option value="YES">होय</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>धूम्रपान</span>
+                            <select
+                              value={profileForm.smokingHabits}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "smokingHabits",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="">निवडा</option>
+                              <option value="NO">नाही</option>
+                              <option value="OCCASIONAL">कधीतरी</option>
+                              <option value="YES">होय</option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>शारीरिक अपंगत्व</span>
+                            <select
+                              value={profileForm.physicalDisability}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "physicalDisability",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="false">नाही</option>
+                              <option value="true">होय</option>
+                            </select>
+                          </label>
+
+                          {profileForm.physicalDisability === "true" && (
+                            <label>
+                              <span>अपंगत्वाची माहिती</span>
+                              <input
+                                type="text"
+                                value={profileForm.disabilityDetails}
+                                onChange={(event) =>
+                                  updateProfileField(
+                                    "disabilityDetails",
+                                    event.target.value,
+                                  )
+                                }
+                              />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(6)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(8)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 8 — LOCATION
+                      ================================================= */}
+                  {profileStep === 8 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">08</span>
+                            <h2>पत्ता</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>देश</span>
+                            <input
+                              type="text"
+                              value={profileForm.currentCountry}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "currentCountry",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>राज्य</span>
+                            <input
+                              type="text"
+                              value={profileForm.state}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "state",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. महाराष्ट्र"
+                            />
+                          </label>
+
+                          <label>
+                            <span>जिल्हा</span>
+                            <input
+                              type="text"
+                              value={profileForm.district}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "district",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. पुणे"
+                            />
+                          </label>
+
+                          <label>
+                            <span>तालुका / तहसील</span>
+                            <input
+                              type="text"
+                              value={profileForm.taluka}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "taluka",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>शहर / गाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.city}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "city",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>पिनकोड</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={10}
+                              value={profileForm.currentPincode}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "currentPincode",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+
+                        <label className="profile-about-field">
+                          <span>सध्याचा पत्ता</span>
+                          <textarea
+                            rows={4}
+                            value={profileForm.currentAddress}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "currentAddress",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="संपूर्ण सध्याचा पत्ता"
+                          />
+                        </label>
+
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <h2>मूळ गाव / Native Place</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>देश</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativeCountry}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativeCountry",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>राज्य</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativeState}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativeState",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>जिल्हा</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativeDistrict}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativeDistrict",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>तालुका / तहसील</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativeTaluka}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativeTaluka",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>शहर / गाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativeCity}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativeCity",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>मूळ गावाचे नाव</span>
+                            <input
+                              type="text"
+                              value={profileForm.nativePlace}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nativePlace",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(7)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(9)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 9 — NRI
+                      ================================================= */}
+                  {profileStep === 9 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">09</span>
+                            <h2>NRI माहिती</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>NRI आहात का?</span>
+                            <select
+                              value={profileForm.nri}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "nri",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="false">नाही</option>
+                              <option value="true">होय</option>
+                            </select>
+                          </label>
+
+                          {profileForm.nri === "true" && (
+                            <>
+                              <label>
+                                <span>राहण्याचा देश</span>
+                                <input
+                                  type="text"
+                                  value={profileForm.livingCountry}
+                                  onChange={(event) =>
+                                    updateProfileField(
+                                      "livingCountry",
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder="उदा. USA"
+                                />
+                              </label>
+
+                              <label>
+                                <span>NRI पत्ता</span>
+                                <input
+                                  type="text"
+                                  value={profileForm.nriAddress}
+                                  onChange={(event) =>
+                                    updateProfileField(
+                                      "nriAddress",
+                                      event.target.value,
+                                    )
+                                  }
+                                />
+                              </label>
+                            </>
+                          )}
+                        </div>
+
+                        <div className="profile-step-tip">
+                          <span>✦</span>
+                          <div>
+                            <strong>भारताबाहेर राहत असल्यास</strong>
+                            <p>
+                              राहण्याचा देश आणि पत्ता अचूक द्या.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(8)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(10)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 10 — ABOUT ME + PHOTO
+                      ================================================= */}
+                  {profileStep === 10 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">10</span>
                             <h2>माझ्याबद्दल</h2>
                           </div>
                         </div>
 
                         <label className="profile-about-field">
                           <span>तुमच्याबद्दल थोडक्यात</span>
-
                           <textarea
                             value={profileForm.aboutMe}
                             onChange={(event) =>
@@ -1736,30 +4345,519 @@ function App() {
                                 event.target.value,
                               )
                             }
-                            placeholder="तुमचे शिक्षण, स्वभाव, आवडी, कुटुंब किंवा जोडीदाराबद्दलच्या अपेक्षा याबद्दल लिहा."
-                            rows={7}
+                            placeholder="तुमचे शिक्षण, स्वभाव, आवडी, कुटुंब, करिअर आणि भविष्यातील अपेक्षांबद्दल लिहा."
+                            rows={8}
                             maxLength={2000}
                           />
-
                           <small>
                             {profileForm.aboutMe.length}/2000
                           </small>
                         </label>
 
-                        <div className="profile-final-note">
-                          <div className="profile-final-icon">
-                            ✦
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <h2>प्रोफाइल फोटो</h2>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            border: "1px dashed #d8c2b8",
+                            borderRadius: "18px",
+                            padding: "24px",
+                            background: "#fffaf7",
+                          }}
+                        >
+                          <p style={{ marginTop: 0 }}>
+                            स्पष्ट, सभ्य आणि अलीकडील फोटो निवडा. एकूण 6 फोटो ठेवता येतील.
+                          </p>
+
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(auto-fill, minmax(135px, 1fr))",
+                              gap: "16px",
+                              alignItems: "start",
+                            }}
+                          >
+                            {profilePhotos.map((photo) => (
+                              <div
+                                key={photo.id}
+                                style={{
+                                  position: "relative",
+                                  minWidth: 0,
+                                }}
+                              >
+                                <img
+                                  src={photo.preview}
+                                  alt="प्रोफाइल फोटो पूर्वदृश्य"
+                                  style={{
+                                    width: "100%",
+                                    aspectRatio: "1 / 1",
+                                    objectFit: "cover",
+                                    borderRadius: "16px",
+                                    border: photo.isPrimary
+                                      ? "3px solid #8e2444"
+                                      : "1px solid #eadbd5",
+                                  }}
+                                />
+
+                                {photo.isPrimary && (
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      marginTop: "7px",
+                                      padding: "4px 8px",
+                                      borderRadius: "999px",
+                                      background: "#8e2444",
+                                      color: "#fff",
+                                      fontSize: "12px",
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    मुख्य फोटो
+                                  </span>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => setPrimaryProfilePhoto(photo.id)}
+                                  style={{
+                                    width: "100%",
+                                    marginTop: "8px",
+                                    padding: "7px 8px",
+                                    borderRadius: "10px",
+                                    border: "1px solid #eadbd5",
+                                    background: "#fff",
+                                    color: "#65182f",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {photo.isPrimary ? "मुख्य फोटो" : "मुख्य करा"}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeProfilePhoto(photo.id)}
+                                  style={{
+                                    width: "100%",
+                                    marginTop: "5px",
+                                    padding: "6px 8px",
+                                    border: 0,
+                                    background: "transparent",
+                                    color: "#a33a4f",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  × फोटो काढा
+                                </button>
+                              </div>
+                            ))}
+
+                            {profilePhotos.length < 6 && (
+                              <label
+                                style={{
+                                  minHeight: "150px",
+                                  border: "2px dashed #b58a43",
+                                  borderRadius: "16px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: "7px",
+                                  padding: "14px",
+                                  textAlign: "center",
+                                  cursor: "pointer",
+                                  background: "#fff",
+                                  color: "#65182f",
+                                }}
+                              >
+                                <span style={{ fontSize: "30px", lineHeight: 1 }}>＋</span>
+                                <strong>फोटो अपलोड करा</strong>
+                                <small>JPG / PNG / WebP<br />5 MB पर्यंत</small>
+                                <input
+                                  type="file"
+                                  accept="image/jpeg,image/png,image/webp"
+                                  multiple
+                                  onChange={handlePhotoSelect}
+                                  style={{ display: "none" }}
+                                />
+                              </label>
+                            )}
                           </div>
 
+                          {photoError && (
+                            <div
+                              className="auth-error"
+                              role="alert"
+                              style={{ marginTop: "14px" }}
+                            >
+                              {photoError}
+                            </div>
+                          )}
+
+                          <p
+                            style={{
+                              marginBottom: 0,
+                              marginTop: "16px",
+                              fontSize: "0.88rem",
+                              color: "#78656a",
+                            }}
+                          >
+                            सध्या फोटोचे preview ब्राउझरमध्ये दिसेल. Supabase Storage जोडल्यावर हे फोटो कायमस्वरूपी server वर जतन केले जातील.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(9)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(11)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 11 — PARTNER PREFERENCES
+                      ================================================= */}
+                  {profileStep === 11 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">11</span>
+                            <h2>जोडीदाराच्या अपेक्षा</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>किमान वय</span>
+                            <input
+                              type="number"
+                              min="18"
+                              value={profileForm.partnerMinAge}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMinAge",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कमाल वय</span>
+                            <input
+                              type="number"
+                              min="18"
+                              value={profileForm.partnerMaxAge}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMaxAge",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>किमान उंची (सेमी)</span>
+                            <input
+                              type="number"
+                              min="1"
+                              value={profileForm.partnerMinHeightCm}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMinHeightCm",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कमाल उंची (सेमी)</span>
+                            <input
+                              type="number"
+                              min="1"
+                              value={profileForm.partnerMaxHeightCm}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMaxHeightCm",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>वैवाहिक स्थिती</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerMaritalStatus}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMaritalStatus",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. अविवाहित"
+                            />
+                          </label>
+
+                          <label>
+                            <span>मातृभाषा</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerMotherTongue}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMotherTongue",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="उदा. मराठी"
+                            />
+                          </label>
+
+                          <label>
+                            <span>धर्म</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerReligion}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerReligion",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>जात</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerCaste}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerCaste",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>पोटजात</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerSubCaste}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerSubCaste",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>रास</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerZodiacSign}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerZodiacSign",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>नक्षत्र</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerNakshatra}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerNakshatra",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>मंगळिक</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerManglikStatus}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerManglikStatus",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>शिक्षण</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerEducation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerEducation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>व्यवसाय</span>
+                            <input
+                              type="text"
+                              value={profileForm.partnerOccupation}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerOccupation",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>किमान उत्पन्न</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.partnerMinIncome}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMinIncome",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कमाल उत्पन्न</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={profileForm.partnerMaxIncome}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "partnerMaxIncome",
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+
+                        <label className="profile-about-field">
+                          <span>जोडीदाराबद्दल अधिक अपेक्षा</span>
+                          <textarea
+                            rows={6}
+                            value={profileForm.partnerAbout}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "partnerAbout",
+                                event.target.value,
+                              )
+                            }
+                            maxLength={2000}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="profile-wizard-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setProfileStep(10)}
+                        >
+                          ← मागे
+                        </button>
+                        <button
+                          type="button"
+                          className="auth-submit profile-next-button"
+                          onClick={() => setProfileStep(12)}
+                        >
+                          पुढे जा <span>→</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* =================================================
+                      STEP 12 — VISIBILITY + SAVE
+                      ================================================= */}
+                  {profileStep === 12 && (
+                    <div className="profile-wizard-panel">
+                      <div className="profile-form-section profile-wizard-section">
+                        <div className="profile-form-section-heading">
+                          <div>
+                            <span className="profile-section-number">12</span>
+                            <h2>गोपनीयता व प्रोफाइल स्थिती</h2>
+                          </div>
+                        </div>
+
+                        <div className="profile-form-grid">
+                          <label>
+                            <span>प्रोफाइल कोणाला दिसावे?</span>
+                            <select
+                              value={profileForm.visibility}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "visibility",
+                                  event.target.value,
+                                )
+                              }
+                            >
+                              <option value="PRIVATE">
+                                फक्त मी / गोपनीय
+                              </option>
+                              <option value="MEMBERS_ONLY">
+                                सदस्यांना
+                              </option>
+                              <option value="PUBLIC">
+                                सार्वजनिक
+                              </option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <div className="profile-final-note">
+                          <div className="profile-final-icon">✦</div>
                           <div>
                             <strong>
                               तुमचे प्रोफाइल जवळपास तयार आहे!
                             </strong>
-
                             <p>
                               माहिती तपासा आणि प्रोफाइल जतन करा.
-                              तुम्ही नंतरही तुमची माहिती अपडेट करू
-                              शकता.
+                              तुम्ही पडताळणीच्या काळातही माहिती
+                              अपडेट करू शकता.
                             </p>
                           </div>
                         </div>
@@ -1787,10 +4885,7 @@ function App() {
                         <button
                           type="button"
                           className="secondary-button"
-                          onClick={() => {
-                            setProfileError("");
-                            setProfileStep(3);
-                          }}
+                          onClick={() => setProfileStep(11)}
                           disabled={profileSaving}
                         >
                           ← मागे
