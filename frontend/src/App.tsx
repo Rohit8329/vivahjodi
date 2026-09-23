@@ -47,6 +47,12 @@ import {
   type RelativeDetail,
 } from "./api/relative";
 
+import {
+  createOrUpdateOccupation,
+  getMyOccupation,
+  type OccupationDetail,
+} from "./api/occupation";
+
 /* =========================================================
    RAZORPAY TYPES
    ========================================================= */
@@ -548,6 +554,7 @@ function App() {
   const [relatives, setRelatives] =
     useState<RelativeDetail[]>([]);
 
+
   const [editingRelativeId, setEditingRelativeId] =
   useState<string | null>(null);
 
@@ -626,6 +633,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
     data: ProfileResponse,
     family: FamilyDetail | null = null,
     education: EducationDetail | null = null,
+    occupation: OccupationDetail | null = null,
   ): ProfileForm => ({
     ...emptyProfileForm,
     firstName: data.firstName || "",
@@ -707,6 +715,38 @@ const [editingRelativeForm, setEditingRelativeForm] =
         ? String(education.passingYear)
         : "",
 
+    occupation:
+      occupation?.occupation || "",
+
+    subOccupation:
+      occupation?.subOccupation || "",
+
+    employmentType:
+      occupation?.employmentType || "",
+
+    employedIn:
+      occupation?.employedIn || "",
+
+    companyName:
+      occupation?.companyName || "",
+
+    designation:
+      occupation?.designation || "",
+
+    workLocation:
+      occupation?.workLocation || "",
+
+    annualIncome:
+      occupation?.annualIncome ||
+      (occupation?.annualIncomeInr !== null &&
+      occupation?.annualIncomeInr !== undefined
+        ? String(occupation.annualIncomeInr)
+        : ""),
+
+    incomeCurrency:
+      occupation?.incomeCurrency || "INR",
+
+
     fatherName: family?.fatherName || "",
     fatherOccupation: family?.fatherOccupation || "",
     motherName: family?.motherName || "",
@@ -773,6 +813,8 @@ const [editingRelativeForm, setEditingRelativeForm] =
 
     try {
     const data = await getMyProfile(token);
+
+    
       const education = data
         ? await getMyEducation(token)
         : null;
@@ -785,9 +827,17 @@ const [editingRelativeForm, setEditingRelativeForm] =
         ? await getMyRelatives(token)
         : [];
 
+      const loadedOccupation =data 
+        ? await getMyOccupation(token) 
+        : null;
+
+
+
+
       setProfile(data);
 
       setRelatives(loadedRelatives);
+
 
       if (data) {
         setProfileForm(
@@ -795,6 +845,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
             data,
             family,
             education,
+            loadedOccupation,
           )
         );
       }
@@ -1186,6 +1237,41 @@ const [editingRelativeForm, setEditingRelativeForm] =
       const savedFamily =
         await createOrUpdateFamily(token, familyData);
 
+      const occupationData = {
+        occupation:
+          profileForm.occupation.trim() || undefined,
+
+        subOccupation:
+          profileForm.subOccupation.trim() || undefined,
+
+        employmentType:
+          profileForm.employmentType || undefined,
+
+        employedIn:
+          profileForm.employedIn.trim() || undefined,
+
+        companyName:
+          profileForm.companyName.trim() || undefined,
+
+        designation:
+          profileForm.designation.trim() || undefined,
+
+        workLocation:
+          profileForm.workLocation.trim() || undefined,
+
+        annualIncome:
+          profileForm.annualIncome.trim() || undefined,
+
+        incomeCurrency:
+          profileForm.incomeCurrency || "INR",
+      };
+
+      const savedOccupation =
+        await createOrUpdateOccupation(
+          token,
+          occupationData,
+        );
+
       setProfile(savedProfile);
 
       setProfileForm(
@@ -1193,6 +1279,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
           savedProfile,
           savedFamily,
           savedEducation,
+          savedOccupation,
         ),
       );
 

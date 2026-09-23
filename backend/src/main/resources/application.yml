@@ -25,6 +25,8 @@ server:
 logging:
   level:
     org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: TRACE
 
 app:
   jwt:
