@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://vivahjodi.pages.dev/api";
+  import.meta.env.VITE_API_BASE_URL || "https://49568846.vivahjodi.pages.dev/api";
 
 export type MembershipStatus =
   | "PENDING_PAYMENT"

@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://api.vivahjodi.com/api";
+  import.meta.env.VITE_API_BASE_URL || "https://49568846.vivahjodi.pages.dev/api";
 
 export type RegisterRequest = {
   email: string;
