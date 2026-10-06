@@ -1,0 +1,18 @@
+ALTER TABLE profiles
+    ADD COLUMN partner_min_age INTEGER,
+    ADD COLUMN partner_max_age INTEGER,
+    ADD COLUMN partner_min_height_cm INTEGER,
+    ADD COLUMN partner_max_height_cm INTEGER,
+    ADD COLUMN partner_marital_status VARCHAR(30),
+    ADD COLUMN partner_mother_tongue VARCHAR(50),
+    ADD COLUMN partner_religion VARCHAR(50),
+    ADD COLUMN partner_caste VARCHAR(100),
+    ADD COLUMN partner_sub_caste VARCHAR(100),
+    ADD COLUMN partner_zodiac_sign VARCHAR(50),
+    ADD COLUMN partner_nakshatra VARCHAR(100),
+    ADD COLUMN partner_manglik_status VARCHAR(50),
+    ADD COLUMN partner_education VARCHAR(200),
+    ADD COLUMN partner_occupation VARCHAR(200),
+    ADD COLUMN partner_min_income INTEGER,
+    ADD COLUMN partner_max_income INTEGER,
+    ADD COLUMN partner_about TEXT;

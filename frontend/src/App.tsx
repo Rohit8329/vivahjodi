@@ -1,5 +1,7 @@
+import AdvancedSearchPage from "./AdvancedSearchPage";
 import { useEffect, useState } from "react";
 import "./App.css";
+
 
 import {
   getCurrentUser,
@@ -7,6 +9,12 @@ import {
   registerUser,
   type AuthResponse,
 } from "./api/auth";
+
+import {
+  searchProfiles,
+  type ProfileSearchRequest,
+  type ProfileSearchResponse,
+} from "./api/search";
 
 import {
   createMembership,
@@ -20,12 +28,26 @@ import {
 } from "./api/payment";
 
 import {
+  getPendingAdminProfiles,
+  approveAdminProfile,
+  rejectAdminProfile,
+  type AdminProfile,
+} from "./api/admin";
+
+import {
   createProfile,
   getMyProfile,
   updateMyProfile,
+  submitMyProfileForVerification,
   type ProfileRequest,
   type ProfileResponse,
 } from "./api/profile";
+
+import {
+  getMyProfilePhotos,
+  uploadProfilePhoto,
+  deleteProfilePhoto,
+} from "./api/profilePhotos";
 
 import {
   createOrUpdateFamily,
@@ -52,6 +74,31 @@ import {
   getMyOccupation,
   type OccupationDetail,
 } from "./api/occupation";
+
+import {
+  getStates,
+  getDistricts,
+  getTalukas,
+  getEducationLevels,
+  getEducationStreams,
+  type MasterState,
+  type MasterDistrict,
+  type MasterTaluka,
+  type MasterEducationLevel,
+  type MasterEducationStream,
+} from "./api/master";
+
+import {
+  getOccupationCategories,
+  getOccupationsByCategory,
+  getAllOccupations,
+  getEmploymentTypes,
+  getEmploymentSectors,
+  type OccupationCategory,
+  type OccupationMaster,
+  type EmploymentType,
+  type EmploymentSector,
+} from "./api/occupationMaster";
 
 /* =========================================================
    RAZORPAY TYPES
@@ -110,7 +157,7 @@ type SearchForm = {
   age: string;
   community: string;
   education: string;
-  city: string;
+  district: string;
 };
 
 type ModalType =
@@ -240,7 +287,7 @@ type ProfileForm = {
 
 type ProfilePhotoDraft = {
   id: string;
-  file: File;
+  file?: File;
   preview: string;
   isPrimary: boolean;
 };
@@ -378,8 +425,8 @@ const profileStepLabels = [
   "NRI माहिती",
   "माझ्याबद्दल",
   "जोडीदाराच्या अपेक्षा",
-  "गोपनीयता",
 ];
+
 
 /* =========================================================
    SERVICES
@@ -449,10 +496,19 @@ function App() {
       age: "21 - 30",
       community: "सर्व समाज",
       education: "सर्व शिक्षण",
-      city: "सर्व शहर",
+      district: "सर्व जिल्हे",
     });
 
   const [searchMessage, setSearchMessage] =
+    useState("");
+
+  const [searchResults, setSearchResults] =
+    useState<ProfileSearchResponse[]>([]);
+
+  const [searchLoading, setSearchLoading] =
+    useState(false);
+
+  const [searchError, setSearchError] =
     useState("");
 
   /* =======================================================
@@ -471,6 +527,9 @@ function App() {
 
   const [loginPassword, setLoginPassword] =
     useState("");
+
+  const [showLoginPassword, setShowLoginPassword] =
+    useState(false);
 
   /* =======================================================
      REGISTER STATE
@@ -520,6 +579,448 @@ function App() {
   const [membershipError, setMembershipError] =
     useState("");
 
+  const [profileForm, setProfileForm] =
+    useState<ProfileForm>({ ...emptyProfileForm });
+
+  const [occupationCategories, setOccupationCategories] =
+    useState<OccupationCategory[]>([]);
+
+  const [occupations, setOccupations] =
+    useState<OccupationMaster[]>([]);
+
+  const [allOccupations, setAllOccupations] =
+    useState<OccupationMaster[]>([]);
+
+
+
+  const [selectedOccupationCategoryId, setSelectedOccupationCategoryId] =
+    useState("");
+
+  const [employmentTypes, setEmploymentTypes] =
+    useState<EmploymentType[]>([]);
+
+  const [employmentSectors, setEmploymentSectors] =
+    useState<EmploymentSector[]>([]);
+
+  const [occupationMasterLoading, setOccupationMasterLoading] =
+    useState(false);
+
+  const [occupationMasterError, setOccupationMasterError] =
+    useState("");
+
+
+  /* =======================================================
+     Master State
+    ======================================================== */
+
+
+    const [masterStates, setMasterStates] = 
+      useState<MasterState[]>([]);
+
+
+    const [educationLevels, setEducationLevels] =
+      useState<MasterEducationLevel[]>([]);
+
+    const [educationStreams, setEducationStreams] =
+      useState<MasterEducationStream[]>([]);
+
+    const [educationMasterLoading, setEducationMasterLoading] =
+      useState(false);
+
+    const [educationMasterError, setEducationMasterError] =
+      useState("");
+
+
+    const [nativeMasterDistricts, setNativeMasterDistricts] = 
+      useState<MasterDistrict[]>([]);
+
+    const [nativeMasterTalukas, setNativeMasterTalukas] = 
+      useState<MasterTaluka[]>([]);
+
+    const [masterDistricts, setMasterDistricts] = 
+      useState<MasterDistrict[]>([]);
+    
+    const [masterTalukas, setMasterTalukas] = 
+      useState<MasterTaluka[]>([]);
+
+    const [masterLoading, setMasterLoading] = 
+      useState(false);
+
+    const [masterError, setMasterError] = 
+      useState("");
+
+
+    useEffect(() => {
+      let cancelled = false;
+
+      async function loadMasterStates() {
+        try {
+          setMasterLoading(true);
+          setMasterError("");
+
+          const states = await getStates();
+
+          if (!cancelled) {
+            setMasterStates(states);
+          }
+        } catch (error) {
+          if (!cancelled) {
+            setMasterError(
+              error instanceof Error
+                ? error.message
+                : "राज्यांची माहिती मिळवता आली नाही.",
+            );
+          }
+        } finally {
+          if (!cancelled) {
+            setMasterLoading(false);
+          }
+        }
+      }
+
+  loadMasterStates();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+
+    useEffect(() => {
+      let cancelled = false;
+
+      async function loadMasterDistricts() {
+        const stateName = profileForm.state?.trim();
+
+        if (!stateName) {
+          setMasterDistricts([]);
+          setMasterTalukas([]);
+          return;
+        }
+
+        const selectedState = masterStates.find(
+          (state) =>
+            state.name.trim().toLowerCase() === stateName.toLowerCase(),
+        );
+
+        if (!selectedState) {
+          setMasterDistricts([]);
+          setMasterTalukas([]);
+          return;
+        }
+
+        try {
+          setMasterLoading(true);
+          setMasterError("");
+
+          const districts = await getDistricts(selectedState.id);
+
+          if (!cancelled) {
+            setMasterDistricts(districts);
+          }
+        } catch (error) {
+          if (!cancelled) {
+            setMasterDistricts([]);
+            setMasterError(
+              error instanceof Error
+                ? error.message
+                : "जिल्ह्यांची माहिती मिळवता आली नाही.",
+            );
+          }
+        } finally {
+          if (!cancelled) {
+            setMasterLoading(false);
+          }
+        }
+      }
+
+      loadMasterDistricts();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [masterStates, profileForm.state]);
+
+
+    useEffect(() => {
+  let cancelled = false;
+
+  async function loadMasterTalukas() {
+    const districtName = profileForm.district?.trim();
+
+    if (!districtName) {
+      setMasterTalukas([]);
+      return;
+    }
+
+    const selectedDistrict = masterDistricts.find(
+      (district) =>
+        district.name.trim().toLowerCase() ===
+        districtName.toLowerCase(),
+    );
+
+    if (!selectedDistrict) {
+      setMasterTalukas([]);
+      return;
+    }
+
+    try {
+      setMasterLoading(true);
+      setMasterError("");
+
+      const talukas = await getTalukas(selectedDistrict.id);
+
+      if (!cancelled) {
+        setMasterTalukas(talukas);
+      }
+    } catch (error) {
+      if (!cancelled) {
+        setMasterTalukas([]);
+        setMasterError(
+          error instanceof Error
+            ? error.message
+            : "तालुक्यांची माहिती मिळवता आली नाही.",
+        );
+      }
+    } finally {
+      if (!cancelled) {
+        setMasterLoading(false);
+      }
+    }
+  }
+
+  loadMasterTalukas();
+
+  return () => {
+    cancelled = true;
+  };
+}, [masterDistricts, profileForm.district]);
+
+
+
+useEffect(() => {
+  async function loadNativeMasterTalukas() {
+    if (!profileForm.nativeDistrict) {
+      setNativeMasterTalukas([]);
+      return;
+    }
+
+    const selectedDistrict = nativeMasterDistricts.find(
+      (district) => district.name === profileForm.nativeDistrict,
+    );
+
+    if (!selectedDistrict) {
+      setNativeMasterTalukas([]);
+      return;
+    }
+
+    try {
+      const talukas = await getTalukas(selectedDistrict.id);
+      setNativeMasterTalukas(talukas);
+    } catch {
+      setNativeMasterTalukas([]);
+    }
+  }
+
+  loadNativeMasterTalukas();
+}, [profileForm.nativeDistrict, nativeMasterDistricts]);
+
+
+
+useEffect(() => {
+  async function loadNativeMasterDistricts() {
+    if (!profileForm.nativeState) {
+      setNativeMasterDistricts([]);
+      setNativeMasterTalukas([]);
+      return;
+    }
+
+    const selectedState = masterStates.find(
+      (state) => state.name === profileForm.nativeState,
+    );
+
+    if (!selectedState) {
+      setNativeMasterDistricts([]);
+      setNativeMasterTalukas([]);
+      return;
+    }
+
+    try {
+      const districts = await getDistricts(selectedState.id);
+      setNativeMasterDistricts(districts);
+    } catch {
+      setNativeMasterDistricts([]);
+      setNativeMasterTalukas([]);
+    }
+  }
+
+  loadNativeMasterDistricts();
+}, [profileForm.nativeState, masterStates]);
+
+
+
+useEffect(() => {
+  async function loadEducationMasterData() {
+    setEducationMasterLoading(true);
+    setEducationMasterError("");
+
+    try {
+      const [levels, streams] = await Promise.all([
+        getEducationLevels(),
+        getEducationStreams(),
+      ]);
+
+      setEducationLevels(levels);
+      setEducationStreams(streams);
+    } catch (error) {
+      console.error(
+        "Education master data loading failed:",
+        error,
+      );
+
+    } finally {
+      setEducationMasterLoading(false);
+    }
+  }
+
+  loadEducationMasterData();
+}, []);
+
+
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOccupationMasterData() {
+      setOccupationMasterLoading(true);
+      setOccupationMasterError("");
+
+      try {
+        const [
+          categories,
+          allOccupationData,
+          types,
+          sectors,
+        ] = await Promise.all([
+          getOccupationCategories(),
+          getAllOccupations(),
+          getEmploymentTypes(),
+          getEmploymentSectors(),
+        ]);
+
+        if (!cancelled) {
+          setOccupationCategories(categories);
+          setAllOccupations(allOccupationData);
+          setEmploymentTypes(types);
+          setEmploymentSectors(sectors);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setOccupationMasterError(
+            error instanceof Error
+              ? error.message
+              : "व्यवसायाची मास्टर माहिती मिळवता आली नाही.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setOccupationMasterLoading(false);
+        }
+      }
+    }
+
+    loadOccupationMasterData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
+
+    useEffect(() => {
+    let cancelled = false;
+
+    async function loadOccupations() {
+      if (!selectedOccupationCategoryId) {
+        setOccupations([]);
+        return;
+      }
+
+      try {
+        setOccupationMasterError("");
+
+        const data = await getOccupationsByCategory(
+          selectedOccupationCategoryId,
+        );
+
+        if (!cancelled) {
+          setOccupations(data);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setOccupations([]);
+          setOccupationMasterError(
+            error instanceof Error
+              ? error.message
+              : "व्यवसायांची माहिती मिळवता आली नाही.",
+          );
+        }
+      }
+    }
+
+    loadOccupations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedOccupationCategoryId]);
+
+
+
+
+  useEffect(() => {
+  if (!profileForm.occupation || allOccupations.length === 0) {
+    return;
+  }
+
+  const savedOccupation = allOccupations.find(
+    (occupation) =>
+      occupation.name.toLowerCase() ===
+      profileForm.occupation.trim().toLowerCase(),
+  );
+
+  if (!savedOccupation) {
+    return;
+  }
+
+  const categoryId = savedOccupation.category.id;
+
+  setSelectedOccupationCategoryId((current) =>
+    current === categoryId ? current : categoryId,
+  );
+
+  setOccupations((current) => {
+    if (
+      current.some(
+        (occupation) => occupation.id === savedOccupation.id,
+      )
+    ) {
+      return current;
+    }
+
+    return [savedOccupation];
+  });
+}, [profileForm.occupation, allOccupations]);
+
+
+
+
+
+
+
+
+
   /* =======================================================
      PROFILE STATE
      ======================================================= */
@@ -545,11 +1046,26 @@ function App() {
   const [profileMessage, setProfileMessage] =
     useState("");
 
-  const [profileForm, setProfileForm] =
-    useState<ProfileForm>({ ...emptyProfileForm });
 
   const [profilePhotos, setProfilePhotos] =
     useState<ProfilePhotoDraft[]>([]);
+
+  const [removedProfilePhotoIds, setRemovedProfilePhotoIds] =
+    useState<string[]>([]);  
+
+  const [adminProfiles, setAdminProfiles] = 
+    useState<AdminProfile[]>([]);
+
+  const [adminLoading, setAdminLoading] = 
+    useState(false);
+  
+  const [adminError, setAdminError] = 
+    useState("");
+
+  const [adminView, setAdminView] = 
+    useState(false);
+
+
 
   const [relatives, setRelatives] =
     useState<RelativeDetail[]>([]);
@@ -580,50 +1096,100 @@ const [editingRelativeForm, setEditingRelativeForm] =
      ======================================================= */
 
   useEffect(() => {
-    const token =
-      localStorage.getItem(
-        "vivahjodi_token",
-      );
+  const token =
+    localStorage.getItem(
+      "vivahjodi_token",
+    );
 
-    if (!token) {
-      return;
-    }
+  if (!token) {
+    return;
+  }
 
-    getCurrentUser(token)
-      .then((user) => {
-        setCurrentUser(user);
-      })
-      .catch(() => {
-        localStorage.removeItem(
-          "vivahjodi_token",
-        );
+  getCurrentUser(token)
+    .then(async (user) => {
+      setCurrentUser(user);
 
-        setCurrentUser(null);
+      /*
+       * ADMIN accounts do not require membership.
+       * Membership belongs to matrimonial users.
+       */
+      if (user.role === "ADMIN") {
         setMembership(null);
-      });
+        setMembershipError("");
+        setMembershipLoading(false);
+        return;
+      }
 
-    /* =====================================================
-       LOAD MEMBERSHIP
-       ===================================================== */
+      /* =====================================================
+         LOAD MEMBERSHIP FOR NORMAL USERS
+         ===================================================== */
 
-    setMembershipLoading(true);
-    setMembershipError("");
+      setMembershipLoading(true);
+      setMembershipError("");
 
-    getMyMembership(token)
-      .then((data) => {
-        setMembership(data);
-      })
-      .catch(() => {
+      try {
+        const membershipData =
+          await getMyMembership(token);
+
+        setMembership(
+          membershipData,
+        );
+      } catch {
         /*
          * A newly registered user may not
          * have a membership yet.
          */
         setMembership(null);
-      })
-      .finally(() => {
+      } finally {
         setMembershipLoading(false);
-      });
-  }, []);
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem(
+        "vivahjodi_token",
+      );
+
+      setCurrentUser(null);
+      setMembership(null);
+      setMembershipLoading(false);
+    });
+}, []);
+
+
+
+
+/* =======================================================
+   ADMIN HELPERS
+   ======================================================= */
+
+const loadAdminProfiles = async () => {
+  const token = localStorage.getItem("vivahjodi_token");
+
+  if (!token) {
+    setAdminError("Admin सत्र उपलब्ध नाही. कृपया पुन्हा लॉगिन करा.");
+    return;
+  }
+
+  setAdminLoading(true);
+  setAdminError("");
+
+  try {
+    const profiles =
+      await getPendingAdminProfiles(token);
+
+    setAdminProfiles(profiles);
+  } catch (error) {
+    setAdminError(
+      error instanceof Error
+        ? error.message
+        : "प्रलंबित प्रोफाइल मिळवताना त्रुटी आली.",
+    );
+  } finally {
+    setAdminLoading(false);
+  }
+};
+
+
 
   /* =======================================================
      PROFILE HELPERS
@@ -797,12 +1363,88 @@ const [editingRelativeForm, setEditingRelativeForm] =
         ? String(family.sistersMarried)
         : "",
 
-    familyType: family?.familyType || "",
-    familyValues: family?.familyValues || "",
-    familyStatus: family?.familyStatus || "",
-    parentalDetails: family?.parentalDetails || "",
+        familyType: family?.familyType || "",
+        familyValues: family?.familyValues || "",
+        familyStatus: family?.familyStatus || "",
+        parentalDetails: family?.parentalDetails || "",
 
-  });
+
+      
+    /* =================================================
+       PARTNER PREFERENCES
+       ================================================= */
+
+    partnerMinAge:
+      data.partnerMinAge !== null &&
+      data.partnerMinAge !== undefined
+        ? String(data.partnerMinAge)
+        : "",
+
+    partnerMaxAge:
+      data.partnerMaxAge !== null &&
+      data.partnerMaxAge !== undefined
+        ? String(data.partnerMaxAge)
+        : "",
+
+    partnerMinHeightCm:
+      data.partnerMinHeightCm !== null &&
+      data.partnerMinHeightCm !== undefined
+        ? String(data.partnerMinHeightCm)
+        : "",
+
+    partnerMaxHeightCm:
+      data.partnerMaxHeightCm !== null &&
+      data.partnerMaxHeightCm !== undefined
+        ? String(data.partnerMaxHeightCm)
+        : "",
+
+    partnerMaritalStatus:
+      data.partnerMaritalStatus || "",
+
+    partnerMotherTongue:
+      data.partnerMotherTongue || "",
+
+    partnerReligion:
+      data.partnerReligion || "",
+
+    partnerCaste:
+      data.partnerCaste || "",
+
+    partnerSubCaste:
+      data.partnerSubCaste || "",
+
+    partnerZodiacSign:
+      data.partnerZodiacSign || "",
+
+    partnerNakshatra:
+      data.partnerNakshatra || "",
+
+    partnerManglikStatus:
+      data.partnerManglikStatus || "",
+
+    partnerEducation:
+      data.partnerEducation || "",
+
+    partnerOccupation:
+      data.partnerOccupation || "",
+
+    partnerMinIncome:
+      data.partnerMinIncome !== null &&
+      data.partnerMinIncome !== undefined
+        ? String(data.partnerMinIncome)
+        : "",
+
+    partnerMaxIncome:
+      data.partnerMaxIncome !== null &&
+      data.partnerMaxIncome !== undefined
+        ? String(data.partnerMaxIncome)
+        : "",
+
+    partnerAbout:
+      data.partnerAbout || "",
+
+    });
+
 
   const loadProfile = async (
     token: string,
@@ -823,20 +1465,38 @@ const [editingRelativeForm, setEditingRelativeForm] =
         ? await getMyFamily(token)
         : null;
 
+      
+
       const loadedRelatives = data
         ? await getMyRelatives(token)
         : [];
+        
 
-      const loadedOccupation =data 
-        ? await getMyOccupation(token) 
+      const loadedOccupation = data
+        ? await getMyOccupation(token)
         : null;
 
+      const loadedPhotos = data
+        ? await getMyProfilePhotos(token)
+        : [];
 
 
 
-      setProfile(data);
 
-      setRelatives(loadedRelatives);
+        setProfile(data);
+
+        setRelatives(loadedRelatives);
+
+        setProfilePhotos(
+          loadedPhotos
+            .filter((photo) => !!photo.photoUrl)
+            .map((photo) => ({
+              id: photo.id,
+              file: undefined,
+              preview: photo.photoUrl as string,
+              isPrimary: photo.primary,
+            })),
+        );
 
 
       if (data) {
@@ -929,26 +1589,51 @@ const [editingRelativeForm, setEditingRelativeForm] =
     event.target.value = "";
   };
 
-  const removeProfilePhoto = (id: string) => {
-    setProfilePhotos((current) => {
-      const removed = current.find((photo) => photo.id === id);
+const removeProfilePhoto = (id: string) => {
+  setProfilePhotos((current) => {
+    const removed = current.find(
+      (photo) => photo.id === id,
+    );
 
-      if (removed) URL.revokeObjectURL(removed.preview);
+    /*
+     * Existing server photos have no File object.
+     * Newly selected local photos have a File object.
+     *
+     * Only existing server photos need a backend DELETE call.
+     */
+    if (removed && !removed.file) {
+      setRemovedProfilePhotoIds((currentIds) =>
+        currentIds.includes(id)
+          ? currentIds
+          : [...currentIds, id],
+      );
+    }
 
-      const remaining = current.filter((photo) => photo.id !== id);
+    /*
+     * Revoke only local object URLs.
+     * Server photo previews are signed URLs and must not
+     * be passed to URL.revokeObjectURL().
+     */
+    if (removed?.file) {
+      URL.revokeObjectURL(removed.preview);
+    }
 
-      if (removed?.isPrimary && remaining.length > 0) {
-        return remaining.map((photo, index) => ({
-          ...photo,
-          isPrimary: index === 0,
-        }));
-      }
+    const remaining = current.filter(
+      (photo) => photo.id !== id,
+    );
 
-      return remaining;
-    });
+    if (removed?.isPrimary && remaining.length > 0) {
+      return remaining.map((photo, index) => ({
+        ...photo,
+        isPrimary: index === 0,
+      }));
+    }
 
-    setPhotoError("");
-  };
+    return remaining;
+  });
+
+  setPhotoError("");
+};
 
   const setPrimaryProfilePhoto = (id: string) => {
     setProfilePhotos((current) =>
@@ -1058,6 +1743,17 @@ const [editingRelativeForm, setEditingRelativeForm] =
       city:
         profileForm.city.trim() || undefined,
 
+      currentState:
+        profileForm.state.trim() || undefined,
+    currentDistrict:
+        profileForm.district.trim() || undefined,
+    currentTaluka:
+        profileForm.taluka.trim() || undefined,
+    currentCity:
+        profileForm.city.trim() || undefined,  
+
+
+
       nativeCountry:
         profileForm.nativeCountry.trim() || "India",
       nativeState:
@@ -1077,12 +1773,75 @@ const [editingRelativeForm, setEditingRelativeForm] =
       nriAddress:
         profileForm.nriAddress.trim() || undefined,
 
-      aboutMe:
-        profileForm.aboutMe.trim() || undefined,
+aboutMe:
+  profileForm.aboutMe.trim() || undefined,
 
-      visibility:
-        profileForm.visibility || "PRIVATE",
-    };
+/* =================================================
+   PARTNER PREFERENCES
+   ================================================= */
+
+partnerMinAge: profileForm.partnerMinAge
+  ? Number(profileForm.partnerMinAge)
+  : undefined,
+
+partnerMaxAge: profileForm.partnerMaxAge
+  ? Number(profileForm.partnerMaxAge)
+  : undefined,
+
+partnerMinHeightCm: profileForm.partnerMinHeightCm
+  ? Number(profileForm.partnerMinHeightCm)
+  : undefined,
+
+partnerMaxHeightCm: profileForm.partnerMaxHeightCm
+  ? Number(profileForm.partnerMaxHeightCm)
+  : undefined,
+
+partnerMaritalStatus:
+  profileForm.partnerMaritalStatus.trim() || undefined,
+
+partnerMotherTongue:
+  profileForm.partnerMotherTongue.trim() || undefined,
+
+partnerReligion:
+  profileForm.partnerReligion.trim() || undefined,
+
+partnerCaste:
+  profileForm.partnerCaste.trim() || undefined,
+
+partnerSubCaste:
+  profileForm.partnerSubCaste.trim() || undefined,
+
+partnerZodiacSign:
+  profileForm.partnerZodiacSign.trim() || undefined,
+
+partnerNakshatra:
+  profileForm.partnerNakshatra.trim() || undefined,
+
+partnerManglikStatus:
+  profileForm.partnerManglikStatus.trim() || undefined,
+
+partnerEducation:
+  profileForm.partnerEducation.trim() || undefined,
+
+partnerOccupation:
+  profileForm.partnerOccupation.trim() || undefined,
+
+partnerMinIncome: profileForm.partnerMinIncome
+  ? Number(profileForm.partnerMinIncome)
+  : undefined,
+
+partnerMaxIncome: profileForm.partnerMaxIncome
+  ? Number(profileForm.partnerMaxIncome)
+  : undefined,
+
+partnerAbout:
+  profileForm.partnerAbout.trim() || undefined,
+
+visibility:
+  profileForm.visibility || "PRIVATE",
+
+
+  };
 
     if (
       !payload.firstName ||
@@ -1272,6 +2031,61 @@ const [editingRelativeForm, setEditingRelativeForm] =
           occupationData,
         );
 
+/* =================================================
+   DELETE REMOVED PROFILE PHOTOS
+   ================================================= */
+
+for (const photoId of removedProfilePhotoIds) {
+  await deleteProfilePhoto(
+    token,
+    photoId,
+  );
+}
+
+/* =================================================
+   UPLOAD PROFILE PHOTOS
+   ================================================= */
+
+for (let index = 0; index < profilePhotos.length; index++) {
+  const photo = profilePhotos[index];
+
+  if (!photo.file) {
+    continue;
+  }
+
+  await uploadProfilePhoto(
+    token,
+    photo.file,
+    photo.isPrimary,
+    index,
+  );
+}
+
+setRemovedProfilePhotoIds([]);
+
+
+        const refreshedPhotos = await getMyProfilePhotos(token);
+
+        setProfilePhotos(
+          refreshedPhotos
+            .filter((photo) => !!photo.photoUrl)
+            .map((photo) => ({
+              id: photo.id,
+              file: undefined,
+              preview: photo.photoUrl as string,
+              isPrimary: photo.primary,
+            })),
+        );
+
+        setRemovedProfilePhotoIds([]);
+
+
+
+
+
+
+
+
       setProfile(savedProfile);
 
       setProfileForm(
@@ -1283,20 +2097,24 @@ const [editingRelativeForm, setEditingRelativeForm] =
         ),
       );
 
-      setProfileMessage(
-        profile
-          ? "तुमचे प्रोफाइल यशस्वीरीत्या अपडेट झाले आहे."
-          : "तुमचे प्रोफाइल यशस्वीरीत्या तयार झाले आहे.",
-      );
 
-      setTimeout(() => {
-        setProfileView(false);
-        setProfileMessage("");
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }, 900);
+const submittedProfile =
+  await submitMyProfileForVerification(token);
+
+setProfile(submittedProfile);
+
+setProfileMessage(
+  "तुमचे प्रोफाइल पडताळणीसाठी यशस्वीरीत्या पाठवले आहे.",
+);
+
+setProfileView(false);
+setProfileMessage("");
+
+window.scrollTo({
+  top: 0,
+  behavior: "smooth",
+});
+
     } catch (error) {
       setProfileError(
         error instanceof Error
@@ -1319,10 +2137,17 @@ const [editingRelativeForm, setEditingRelativeForm] =
       "vivahjodi_token",
     );
 
-    if (!token) {
-      setModal("login");
+  if (!token) {
+  setModal("login");
+  return;
+}
+
+   /* ========== if you want to Lock Admin to create profile then make open this
+      if (currentUser?.role === "ADMIN") {
+      setAuthError("Admin account साठी matrimonial profile आवश्यक नाही.");
       return;
-    }
+    } 
+     =========================================================================== */
 
     setProfileStep(1);
     setProfileView(true);
@@ -1356,10 +2181,90 @@ const [editingRelativeForm, setEditingRelativeForm] =
     setSearchMessage("");
   };
 
-  const handleSearch = () => {
-    setSearchMessage(
-      `शोध तयार आहे — ${searchForm.lookingFor}, ${searchForm.age}, ${searchForm.city}`,
+  const handleSearch = async () => {
+    const token = localStorage.getItem(
+      "vivahjodi_token",
     );
+
+    if (!token) {
+      setSearchResults([]);
+      setSearchError(
+        "प्रोफाइल शोधण्यासाठी कृपया प्रथम लॉगिन करा.",
+      );
+      setSearchMessage("");
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError("");
+    setSearchMessage("");
+
+    const request: ProfileSearchRequest = {
+      page: 0,
+      size: 20,
+    };
+
+    if (searchForm.lookingFor === "वधू") {
+      request.gender = "FEMALE";
+    } else if (searchForm.lookingFor === "वर") {
+      request.gender = "MALE";
+    }
+
+    if (searchForm.age !== "सर्व वयोगट") {
+      const ageMatch =
+        searchForm.age.match(/(\d+)\s*-\s*(\d+)/);
+
+      if (ageMatch) {
+        request.minAge = Number(ageMatch[1]);
+        request.maxAge = Number(ageMatch[2]);
+      } else if (searchForm.age === "40+") {
+        request.minAge = 40;
+      }
+    }
+
+    if (
+      searchForm.community &&
+      searchForm.community !== "सर्व समाज"
+    ) {
+      request.caste = searchForm.community;
+    }
+
+    if (
+      searchForm.education &&
+      searchForm.education !== "सर्व शिक्षण"
+    ) {
+      request.education = searchForm.education;
+    }
+
+    if (
+      searchForm.district &&
+      searchForm.district !== "सर्व जिल्हे"
+    ) {
+      request.currentDistrict = searchForm.district;
+    }
+
+    try {
+      const results = await searchProfiles(
+        token,
+        request,
+      );
+
+      setSearchResults(results);
+      setSearchMessage(
+        results.length > 0
+          ? `${results.length} प्रोफाइल सापडल्या.`
+          : "तुमच्या शोधानुसार कोणतीही प्रोफाइल सापडली नाही.",
+      );
+    } catch (error) {
+      setSearchResults([]);
+      setSearchError(
+        error instanceof Error
+          ? error.message
+          : "प्रोफाइल शोधताना त्रुटी आली.",
+      );
+    } finally {
+      setSearchLoading(false);
+    }
   };
 
   /* =======================================================
@@ -1445,20 +2350,30 @@ const [editingRelativeForm, setEditingRelativeForm] =
 
       setMembershipLoading(true);
 
-      try {
-        const membershipData =
-          await getMyMembership(
-            response.token,
-          );
-
-        setMembership(
-          membershipData,
-        );
-      } catch {
+      if (response.role === "ADMIN") {
         setMembership(null);
-      } finally {
         setMembershipLoading(false);
+      } else {
+      
+      
+        try {
+          const membershipData =
+            await getMyMembership(
+              response.token,
+            );
+
+          setMembership(
+            membershipData,
+          );
+        } catch {
+          setMembership(null);
+        } finally {
+          setMembershipLoading(false);
+        }
       }
+
+
+      setModal(null);
     } catch (error) {
       setAuthError(
         error instanceof Error
@@ -1724,26 +2639,33 @@ const [editingRelativeForm, setEditingRelativeForm] =
                   "पेमेंट यशस्वी झाले! तुमचे सदस्यत्व सक्रिय झाले आहे.",
                 );
 
-            const paidProfile =
-              await getMyProfile(token);
+                let paidProfile = null;
+                let paidFamily = null;
 
-            const paidFamily =
-              await getMyFamily(token);
+                try {
+                  paidProfile = await getMyProfile(token);
+                  paidFamily = await getMyFamily(token);
+                } catch {
+                  // First-time paid user may not have a profile yet.
+                  // That is a normal state, not a payment failure.
+                  paidProfile = null;
+                  paidFamily = null;
+                }
 
-            setProfile(paidProfile);
+                setProfile(paidProfile);
 
-            if (paidProfile) {
-              setProfileForm(
-                profileToForm(
-                  paidProfile,
-                  paidFamily,
-                ),
-              );
-            } else {
-              setProfileForm({
-                ...emptyProfileForm,
-              });
-            }
+                if (paidProfile) {
+                  setProfileForm(
+                    profileToForm(
+                      paidProfile,
+                      paidFamily,
+                    ),
+                  );
+                } else {
+                  setProfileForm({
+                    ...emptyProfileForm,
+                  });
+                }
 
                 setProfileStep(1);
                 setModal(null);
@@ -1802,6 +2724,10 @@ const [editingRelativeForm, setEditingRelativeForm] =
      RENDER
      ======================================================= */
 
+      if (window.location.pathname === "/advanced-search") {
+       return <AdvancedSearchPage />;
+      }
+
   return (
     <div className="app">
       {/* ===================================================
@@ -1854,9 +2780,25 @@ const [editingRelativeForm, setEditingRelativeForm] =
               होम
             </a>
 
-            <a href="#search">
-              जोडीदार शोधा
-            </a>
+            <div className="nav-dropdown">
+              <button
+                type="button"
+                className="nav-dropdown-trigger"
+              >
+                शोध
+                <span>⌄</span>
+              </button>
+
+              <div className="nav-dropdown-menu">
+                <a href="#search">
+                  जोडीदार शोधा
+                </a>
+                
+                <a href="/advanced-search">
+                  ऍडव्हान्स शोध
+                </a>  
+              </div>
+            </div>
 
             <a href="#services">
               आमच्या सेवा
@@ -1898,6 +2840,24 @@ const [editingRelativeForm, setEditingRelativeForm] =
                 >
                   सदस्यत्व
                 </button>
+
+                {currentUser.role === "ADMIN" && (
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={async () => {
+                      setAdminView(true);
+                      setAdminError("");
+                      await loadAdminProfiles();
+                    }}
+                  >
+                    Admin Dashboard
+                  </button>
+                )}
+
+
+
+
 
                 <button
                   className="login-button"
@@ -1942,8 +2902,439 @@ const [editingRelativeForm, setEditingRelativeForm] =
           MAIN
           =================================================== */}
 
-      <main>
-        {profileView ? (
+<main>
+  {adminView ? (
+    <section className="admin-dashboard-page">
+      <section className="admin-dashboard-container">
+
+        <div className="admin-dashboard-header">
+          <div>
+            <span className="section-kicker">
+              विवाहजोडी प्रशासन
+            </span>
+
+            <h1>Admin Dashboard</h1>
+
+            <p>
+              प्रलंबित प्रोफाइल तपासा आणि पडताळणी प्रक्रिया पूर्ण करा.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => {
+              setAdminView(false);
+              setAdminError("");
+            }}
+          >
+            ← मुख्यपृष्ठावर जा
+          </button>
+        </div>
+
+        {adminLoading && (
+          <div className="profile-state-card">
+            <div className="profile-loading-spinner" />
+            <p>प्रलंबित प्रोफाइल लोड होत आहेत...</p>
+          </div>
+        )}
+
+        {adminError && (
+          <div className="admin-error-message">
+            {adminError}
+          </div>
+        )}
+
+        {!adminLoading &&
+          !adminError &&
+          adminProfiles.length === 0 && (
+            <div className="admin-empty-message">
+              सध्या कोणतेही प्रलंबित प्रोफाइल नाही.
+            </div>
+          )}
+
+        {!adminLoading &&
+          adminProfiles.length > 0 && (
+            <div className="admin-profile-list">
+
+              {adminProfiles.map((adminProfile) => (
+                <article
+                  key={adminProfile.id}
+                  className="admin-profile-card"
+                >
+
+                  <div className="admin-profile-card-header">
+
+                    <div>
+                      <h2>
+                        {adminProfile.firstName}{" "}
+                        {adminProfile.middleName || ""}{" "}
+                        {adminProfile.lastName}
+                      </h2>
+
+                      <p>
+                        Profile Code:{" "}
+                        {adminProfile.profileCode ||
+                          "अजून दिलेला नाही"}
+                      </p>
+                    </div>
+
+                    <span className="admin-profile-status">
+                      {adminProfile.profileStatus}
+                    </span>
+
+                  </div>
+
+                  <div className="admin-profile-details">
+
+                    <p>
+                      <strong>लिंग:</strong>{" "}
+                      {adminProfile.gender || "-"}
+                    </p>
+
+                    <p>
+                      <strong>जन्मतारीख:</strong>{" "}
+                      {adminProfile.dateOfBirth || "-"}
+                    </p>
+
+                    <p>
+                      <strong>वैवाहिक स्थिती:</strong>{" "}
+                      {adminProfile.maritalStatus || "-"}
+                    </p>
+
+                    <p>
+                      <strong>धर्म:</strong>{" "}
+                      {adminProfile.religion || "-"}
+                    </p>
+
+                    <p>
+                      <strong>जात:</strong>{" "}
+                      {adminProfile.caste || "-"}
+                    </p>
+
+                    <p>
+                      <strong>मातृभाषा:</strong>{" "}
+                      {adminProfile.motherTongue || "-"}
+                    </p>
+
+                    <div>
+                      <strong>शिक्षण:</strong>
+
+                      {adminProfile.education ? (
+                        <div>
+                          <div>
+                            स्तर: {adminProfile.education.educationLevel || "-"}
+                          </div>
+
+                          <div>
+                            शाखा: {adminProfile.education.educationStream || "-"}
+                          </div>
+
+                          <div>
+                            पदवी: {adminProfile.education.qualification || "-"}
+                          </div>
+
+                          <div>
+                            विशेषीकरण: {adminProfile.education.specialization || "-"}
+                          </div>
+
+                          <div>
+                            संस्था: {adminProfile.education.instituteName || "-"}
+                          </div>
+
+                          <div>
+                            उत्तीर्ण वर्ष: {adminProfile.education.passingYear || "-"}
+                          </div>
+                        </div>
+                      ) : (
+                        <span> -</span>
+                      )}
+
+                    </div>
+
+                    <div>
+                      <strong>कुटुंब माहिती:</strong>
+
+                      {adminProfile.family ? (
+                        <div>
+                          <div>
+                            वडिलांचे नाव:{" "}
+                            {adminProfile.family.fatherName || "-"}
+                          </div>
+
+                          <div>
+                            वडिलांचा व्यवसाय:{" "}
+                            {adminProfile.family.fatherOccupation || "-"}
+                          </div>
+
+                          <div>
+                            आईचे नाव:{" "}
+                            {adminProfile.family.motherName || "-"}
+                          </div>
+
+                          <div>
+                            आईचा व्यवसाय:{" "}
+                            {adminProfile.family.motherOccupation || "-"}
+                          </div>
+
+                          <div>
+                            कुटुंब प्रकार:{" "}
+                            {adminProfile.family.familyType || "-"}
+                          </div>
+
+                          <div>
+                            कौटुंबिक मूल्ये:{" "}
+                            {adminProfile.family.familyValues || "-"}
+                          </div>
+
+                          <div>
+                            कौटुंबिक स्थिती:{" "}
+                            {adminProfile.family.familyStatus || "-"}
+                          </div>
+
+                          <div>
+                            मूळ गाव:{" "}
+                            {adminProfile.family.nativePlace || "-"}
+                          </div>
+
+                          <div>
+                            भाऊ:{" "}
+                            {adminProfile.family.numberOfBrothers ?? "-"}
+                          </div>
+
+                          <div>
+                            विवाहित भाऊ:{" "}
+                            {adminProfile.family.brothersMarried ?? "-"}
+                          </div>
+
+                          <div>
+                            बहिणी:{" "}
+                            {adminProfile.family.numberOfSisters ?? "-"}
+                          </div>
+
+                          <div>
+                            विवाहित बहिणी:{" "}
+                            {adminProfile.family.sistersMarried ?? "-"}
+                          </div>
+
+                          <div>
+                            कौटुंबिक माहिती:{" "}
+                            {adminProfile.family.familyAbout || "-"}
+                          </div>
+
+                          <div>
+                            पालकांची माहिती:{" "}
+                            {adminProfile.family.parentalDetails || "-"}
+                          </div>
+                        </div>
+                      ) : (
+                        <span> -</span>
+                      )}
+                    </div>
+
+<div>
+  <strong>व्यवसाय:</strong>
+
+  {adminProfile.occupation ? (
+    <div>
+      <div>
+        व्यवसाय: {adminProfile.occupation.occupation || "-"}
+      </div>
+
+      <div>
+        पद: {adminProfile.occupation.designation || "-"}
+      </div>
+
+      <div>
+        कंपनी: {adminProfile.occupation.companyName || "-"}
+      </div>
+
+      <div>
+        नोकरी प्रकार: {adminProfile.occupation.employmentType || "-"}
+      </div>
+
+      <div>
+        कामाचे शहर: {adminProfile.occupation.workCity || "-"}
+      </div>
+
+      <div>
+        कामाचे राज्य: {adminProfile.occupation.workState || "-"}
+      </div>
+
+      <div>
+        उप-व्यवसाय: {adminProfile.occupation.subOccupation || "-"}
+      </div>
+
+      <div>
+        नोकरी/व्यवसाय क्षेत्र: {adminProfile.occupation.employedIn || "-"}
+      </div>
+
+      <div>
+        कामाचे ठिकाण: {adminProfile.occupation.workLocation || "-"}
+      </div>
+
+      <div>
+        वार्षिक उत्पन्न: {adminProfile.occupation.annualIncome || "-"}
+      </div>
+
+      <div>
+        उत्पन्न चलन: {adminProfile.occupation.incomeCurrency || "-"}
+      </div>
+
+      <div>
+        व्यवसायाची माहिती:{" "}
+        {adminProfile.occupation.businessDetails || "-"}
+      </div>
+    </div>
+  ) : (
+    <span> -</span>
+  )}
+</div>
+
+
+                    
+                    <p>
+                      <strong>ठिकाण:</strong>{" "}
+                      {[
+                        adminProfile.city,
+                        adminProfile.district,
+                        adminProfile.state,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "-"}
+                    </p>
+
+
+                    <p>
+                      <strong>पेमेंट स्थिती:</strong>{" "}
+                      {adminProfile.paymentStatus === "SUCCESS" ? (
+                        <span className="admin-payment-success">
+                          ✓ पेमेंट प्राप्त झाले
+                        </span>
+                      ) : (
+                        <span className="admin-payment-pending">
+                          ⏳ पेमेंट बाकी आहे
+                        </span>
+                      )}
+                    </p>
+
+
+
+
+                  </div>
+
+                  <div className="admin-profile-actions">
+
+                    <button
+                      type="button"
+                      className="admin-approve-button"
+                      disabled={adminProfile.paymentStatus !== "SUCCESS"}
+                      onClick={async () => {
+
+                        if (adminProfile.paymentStatus !== "SUCCESS") {
+                          setAdminError(
+                            "पेमेंट प्राप्त झाल्याशिवाय प्रोफाइल मंजूर करता येणार नाही.",
+                          );
+                          return;
+                        }
+                        const token =
+                          localStorage.getItem(
+                            "vivahjodi_token",
+                          );
+
+                        if (!token) {
+                          setAdminError(
+                            "Admin सत्र उपलब्ध नाही.",
+                          );
+                          return;
+                        }
+
+                        try {
+                          setAdminLoading(true);
+                          setAdminError("");
+
+                          await approveAdminProfile(
+                            token,
+                            adminProfile.id,
+                          );
+
+                          await loadAdminProfiles();
+                        } catch (error) {
+                          setAdminError(
+                            error instanceof Error
+                              ? error.message
+                              : "प्रोफाइल मंजूर करताना त्रुटी आली.",
+                          );
+                        } finally {
+                          setAdminLoading(false);
+                        }
+                      }}
+                    >
+                      {adminProfile.paymentStatus === "SUCCESS"
+                        ? "✓ मंजूर करा"
+                        : "🔒 पेमेंट बाकी — मंजूर करता येणार नाही"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="admin-reject-button"
+                      onClick={async () => {
+                        const reason = window.prompt(
+                          "प्रोफाइल नाकारण्याचे कारण लिहा:",
+                        );
+
+                        if (!reason?.trim()) {
+                          return;
+                        }
+
+                        const token =
+                          localStorage.getItem(
+                            "vivahjodi_token",
+                          );
+
+                        if (!token) {
+                          setAdminError(
+                            "Admin सत्र उपलब्ध नाही.",
+                          );
+                          return;
+                        }
+
+                        try {
+                          setAdminLoading(true);
+                          setAdminError("");
+
+                          await rejectAdminProfile(
+                            token,
+                            adminProfile.id,
+                            reason.trim(),
+                          );
+
+                          await loadAdminProfiles();
+                        } catch (error) {
+                          setAdminError(
+                            error instanceof Error
+                              ? error.message
+                              : "प्रोफाइल नाकारताना त्रुटी आली.",
+                          );
+                        } finally {
+                          setAdminLoading(false);
+                        }
+                      }}
+                    >
+                      ✕ नकार द्या
+                    </button>
+
+                  </div>
+
+                </article>
+              ))}
+
+            </div>
+          )}
+
+      </section>
+    </section>
+  ) : profileView ? (
           <section
             className="profile-page-section"
             aria-labelledby="profile-page-title"
@@ -2339,25 +3730,78 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => {
-                            if (
-                              !profileForm.firstName.trim() ||
-                              !profileForm.lastName.trim() ||
-                              !profileForm.gender ||
-                              !profileForm.dateOfBirth
-                            ) {
-                              setProfileError(
-                                "कृपया पुढे जाण्यापूर्वी सर्व आवश्यक माहिती भरा.",
-                              );
-                              return;
-                            }
-                            setProfileError("");
-                            setProfileStep(2);
-                            window.scrollTo({
-                              top: 0,
-                              behavior: "smooth",
-                            });
-                          }}
+                            onClick={async () => {
+                              if (
+                                !profileForm.firstName.trim() ||
+                                !profileForm.lastName.trim() ||
+                                !profileForm.gender ||
+                                !profileForm.dateOfBirth
+                              ) {
+                                setProfileError(
+                                  "कृपया पुढे जाण्यापूर्वी सर्व आवश्यक माहिती भरा.",
+                                );
+                                return;
+                              }
+
+                              const token =
+                                localStorage.getItem("vivahjodi_token");
+
+                              if (!token) {
+                                setProfileError(
+                                  "लॉगिन सत्र उपलब्ध नाही. कृपया पुन्हा लॉगिन करा.",
+                                );
+                                return;
+                              }
+
+                              try {
+                                setProfileSaving(true);
+                                setProfileError("");
+                                setProfileMessage("");
+
+                                /*
+                                * Create the profile immediately when the
+                                * user starts the wizard.
+                                *
+                                * This creates the DRAFT profile that
+                                * Steps 2–12 depend on.
+                                */
+                                if (!profile) {
+                                  const draftProfile =
+                                    await createProfile(token, {
+                                      firstName:
+                                        profileForm.firstName.trim(),
+
+                                      lastName:
+                                        profileForm.lastName.trim(),
+
+                                      gender:
+                                        profileForm.gender,
+
+                                      dateOfBirth:
+                                        profileForm.dateOfBirth,
+                                    });
+
+                                  setProfile(draftProfile);
+                                }
+
+                                setProfileStep(2);
+
+                                window.scrollTo({
+                                  top: 0,
+                                  behavior: "smooth",
+                                });
+                              } catch (error) {
+                                setProfileError(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "प्रोफाइल तयार करताना त्रुटी आली.",
+                                );
+                              } finally {
+                                setProfileSaving(false);
+                              }
+                            }}
+
+
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -2543,8 +3987,16 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         </div>
 
                         <div className="profile-form-grid">
+                          {educationMasterError && (
+                            <div className="profile-inline-error">
+                              {educationMasterError}
+                            </div>
+                          )}
+
+
                           <label>
                             <span>शिक्षण स्तर</span>
+
                             <select
                               value={profileForm.educationLevel}
                               onChange={(event) =>
@@ -2553,24 +4005,29 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              disabled={educationMasterLoading}
                             >
-                              <option value="">निवडा</option>
-                              <option value="10TH">१० वी</option>
-                              <option value="12TH">१२ वी</option>
-                              <option value="DIPLOMA">डिप्लोमा</option>
-                              <option value="ITI">ITI</option>
-                              <option value="UG">पदवी</option>
-                              <option value="PG">पदव्युत्तर</option>
-                              <option value="DOCTORATE">डॉक्टरेट</option>
-                              <option value="PROFESSIONAL">
-                                व्यावसायिक
+                              <option value="">
+                                {educationMasterLoading
+                                  ? "लोड होत आहे..."
+                                  : "निवडा"}
                               </option>
-                              <option value="OTHER">इतर</option>
+
+                              {educationLevels.map((level) => (
+                                <option
+                                  key={level.id}
+                                  value={level.name}
+                                >
+                                  {level.name}
+                                </option>
+                              ))}
                             </select>
                           </label>
 
+
                           <label>
                             <span>शिक्षण शाखा / Stream</span>
+
                             <select
                               value={profileForm.educationStream}
                               onChange={(event) =>
@@ -2579,27 +4036,26 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              disabled={educationMasterLoading}
                             >
-                              <option value="">निवडा</option>
-                              <option value="ARTS">कला</option>
-                              <option value="COMMERCE">वाणिज्य</option>
-                              <option value="SCIENCE">विज्ञान</option>
-                              <option value="ENGINEERING">अभियांत्रिकी</option>
-                              <option value="MEDICAL">वैद्यकीय</option>
-                              <option value="LAW">कायदा</option>
-                              <option value="MANAGEMENT">व्यवस्थापन</option>
-                              <option value="COMPUTER_IT">कॉम्प्युटर / IT</option>
-                              <option value="AGRICULTURE">कृषी</option>
-                              <option value="PHARMACY">फार्मसी</option>
-                              <option value="ARCHITECTURE">आर्किटेक्चर</option>
-                              <option value="EDUCATION">शिक्षण</option>
-                              <option value="FINE_ARTS">ललित कला</option>
-                              <option value="HOTEL_MANAGEMENT">
-                                हॉटेल मॅनेजमेंट
+                              <option value="">
+                                {educationMasterLoading
+                                  ? "लोड होत आहे..."
+                                  : "निवडा"}
                               </option>
-                              <option value="OTHER">इतर</option>
+
+                              {educationStreams.map((stream) => (
+                                <option
+                                  key={stream.id}
+                                  value={stream.name}
+                                >
+                                  {stream.name}
+                                </option>
+                              ))}
                             </select>
                           </label>
+
+
 
                           <label>
                             <span>पदवी / Qualification</span>
@@ -2683,7 +4139,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(4)}
+                          onClick={() => {
+                            setProfileStep(4);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -2899,7 +4361,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(5)}
+                          onClick={() => {
+                            setProfileStep(5);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -3521,7 +4989,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
 
                               <input
                                 type="text"
-                                value={profileForm.relativeLocation}
+                                value={profileForm.relativeCity}
                                 onChange={(event) =>
                                   updateProfileField(
                                     "relativeCity",
@@ -3777,7 +5245,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(6)}
+                          onClick={() => {
+                            setProfileStep(6);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -3799,40 +5273,87 @@ const [editingRelativeForm, setEditingRelativeForm] =
                           </div>
                         </div>
 
+                        {occupationMasterError && (
+                          <div className="profile-error-message">
+                            {occupationMasterError}
+                          </div>
+                        )}
+
                         <div className="profile-form-grid">
+
+                          {/* व्यवसाय श्रेणी */}
+                          <label>
+                            <span>व्यवसाय श्रेणी</span>
+                            <select
+                              value={selectedOccupationCategoryId}
+                              disabled={occupationMasterLoading}
+                              onChange={(event) => {
+                                const categoryId = event.target.value;
+
+                                setSelectedOccupationCategoryId(categoryId);
+
+                                updateProfileField("occupation", "");
+                                updateProfileField("subOccupation", "");
+                              }}
+                            >
+                              <option value="">
+                                {occupationMasterLoading
+                                  ? "माहिती लोड होत आहे..."
+                                  : "श्रेणी निवडा"}
+                              </option>
+
+                              {occupationCategories.map((category) => (
+                                <option
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  {category.name}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          {/* व्यवसाय */}
                           <label>
                             <span>व्यवसाय</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.occupation}
+                              disabled={
+                                !selectedOccupationCategoryId ||
+                                occupations.length === 0
+                              }
                               onChange={(event) =>
                                 updateProfileField(
                                   "occupation",
                                   event.target.value,
                                 )
                               }
-                              placeholder="उदा. Software Engineer"
-                            />
+                            >
+                              <option value="">
+                                {!selectedOccupationCategoryId
+                                  ? "प्रथम श्रेणी निवडा"
+                                  : occupations.length === 0
+                                    ? "व्यवसाय उपलब्ध नाही"
+                                    : "व्यवसाय निवडा"}
+                              </option>
+
+                              {occupations.map((occupation) => (
+                                <option
+                                  key={occupation.id}
+                                  value={occupation.name}
+                                >
+                                  {occupation.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
 
-                          <label>
-                            <span>उपव्यवसाय</span>
-                            <input
-                              type="text"
-                              value={profileForm.subOccupation}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "subOccupation",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
-
+                          {/* नोकरीचा प्रकार */}
                           <label>
                             <span>नोकरीचा प्रकार</span>
                             <select
                               value={profileForm.employmentType}
+                              disabled={occupationMasterLoading}
                               onChange={(event) =>
                                 updateProfileField(
                                   "employmentType",
@@ -3840,30 +5361,54 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                 )
                               }
                             >
-                              <option value="">निवडा</option>
-                              <option value="FULL_TIME">पूर्णवेळ</option>
-                              <option value="PART_TIME">अर्धवेळ</option>
-                              <option value="BUSINESS">व्यवसाय</option>
-                              <option value="SELF_EMPLOYED">स्वयंरोजगार</option>
-                              <option value="GOVERNMENT">शासकीय</option>
+                              <option value="">
+                                {occupationMasterLoading
+                                  ? "माहिती लोड होत आहे..."
+                                  : "नोकरीचा प्रकार निवडा"}
+                              </option>
+
+                              {employmentTypes.map((type) => (
+                                <option
+                                  key={type.id}
+                                  value={type.code}
+                                >
+                                  {type.name}
+                                </option>
+                              ))}
                             </select>
                           </label>
 
+                          {/* कामाचे क्षेत्र */}
                           <label>
                             <span>कामाचे क्षेत्र</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.employedIn}
+                              disabled={occupationMasterLoading}
                               onChange={(event) =>
                                 updateProfileField(
                                   "employedIn",
                                   event.target.value,
                                 )
                               }
-                              placeholder="IT / Banking / Government"
-                            />
+                            >
+                              <option value="">
+                                {occupationMasterLoading
+                                  ? "माहिती लोड होत आहे..."
+                                  : "कामाचे क्षेत्र निवडा"}
+                              </option>
+
+                              {employmentSectors.map((sector) => (
+                                <option
+                                  key={sector.id}
+                                  value={sector.code}
+                                >
+                                  {sector.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
 
+                          {/* कंपनी / संस्था */}
                           <label>
                             <span>कंपनी / संस्थेचे नाव</span>
                             <input
@@ -3875,9 +5420,11 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              placeholder="उदा. TCS / Infosys / स्वतःचा व्यवसाय"
                             />
                           </label>
 
+                          {/* पद */}
                           <label>
                             <span>पद / Designation</span>
                             <input
@@ -3889,9 +5436,11 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              placeholder="उदा. Software Engineer"
                             />
                           </label>
 
+                          {/* कामाचे ठिकाण */}
                           <label>
                             <span>कामाचे ठिकाण</span>
                             <input
@@ -3903,9 +5452,11 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              placeholder="उदा. पुणे"
                             />
                           </label>
 
+                          {/* वार्षिक उत्पन्न */}
                           <label>
                             <span>वार्षिक उत्पन्न</span>
                             <input
@@ -3922,6 +5473,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
                             />
                           </label>
 
+                          {/* चलन */}
                           <label>
                             <span>चलन</span>
                             <select
@@ -3939,6 +5491,7 @@ const [editingRelativeForm, setEditingRelativeForm] =
                               <option value="AED">AED</option>
                             </select>
                           </label>
+
                         </div>
                       </div>
 
@@ -3950,10 +5503,17 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         >
                           ← मागे
                         </button>
+
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(7)}
+                          onClick={() => {
+                            setProfileStep(7);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -4077,7 +5637,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(8)}
+                          onClick={() => {
+                            setProfileStep(8);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -4099,10 +5665,10 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         </div>
 
                         <div className="profile-form-grid">
+                          {/* देश */}
                           <label>
                             <span>देश</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.currentCountry}
                               onChange={(event) =>
                                 updateProfileField(
@@ -4110,43 +5676,81 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
-                            />
+                            >
+                              <option value="India">India</option>
+                            </select>
                           </label>
 
+                          {/* राज्य — MASTER */}
                           <label>
                             <span>राज्य</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.state}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "state",
-                                  event.target.value,
-                                )
-                              }
-                              placeholder="उदा. महाराष्ट्र"
-                            />
+                              onChange={(event) => {
+                                const stateName = event.target.value;
+
+                                updateProfileField("state", stateName);
+                                updateProfileField("district", "");
+                                updateProfileField("taluka", "");
+                                updateProfileField("city", "");
+
+                                setMasterDistricts([]);
+                                setMasterTalukas([]);
+                              }}
+                              disabled={masterLoading || masterStates.length === 0}
+                            >
+                              <option value="">राज्य निवडा</option>
+
+                              {masterStates.map((state) => (
+                                <option
+                                  key={state.id}
+                                  value={state.name}
+                                >
+                                  {state.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
 
+                          {/* जिल्हा — MASTER */}
                           <label>
                             <span>जिल्हा</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.district}
-                              onChange={(event) =>
+                              onChange={(event) => {
+                                const districtName = event.target.value;
+
                                 updateProfileField(
                                   "district",
-                                  event.target.value,
-                                )
+                                  districtName,
+                                );
+                                updateProfileField("taluka", "");
+                                updateProfileField("city", "");
+
+                                setMasterTalukas([]);
+                              }}
+                              disabled={
+                                !profileForm.state ||
+                                masterDistricts.length === 0
                               }
-                              placeholder="उदा. पुणे"
-                            />
+                            >
+                              <option value="">जिल्हा निवडा</option>
+
+                              {masterDistricts.map((district) => (
+                                <option
+                                  key={district.id}
+                                  value={district.name}
+                                >
+                                  {district.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
 
+                          {/* तालुका — MASTER */}
                           <label>
                             <span>तालुका / तहसील</span>
-                            <input
-                              type="text"
+                            <select
                               value={profileForm.taluka}
                               onChange={(event) =>
                                 updateProfileField(
@@ -4154,11 +5758,29 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
-                            />
+                              disabled={
+                                !profileForm.district ||
+                                masterTalukas.length === 0
+                              }
+                            >
+                              <option value="">
+                                तालुका / तहसील निवडा
+                              </option>
+
+                              {masterTalukas.map((taluka) => (
+                                <option
+                                  key={taluka.id}
+                                  value={taluka.name}
+                                >
+                                  {taluka.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
 
+                          {/* शहर / गाव — MANUAL */}
                           <label>
-                            <span>शहर / गाव</span>
+                            <span>शहर / गाव / ठिकाण</span>
                             <input
                               type="text"
                               value={profileForm.city}
@@ -4168,28 +5790,47 @@ const [editingRelativeForm, setEditingRelativeForm] =
                                   event.target.value,
                                 )
                               }
+                              placeholder="शहर / गाव / ठिकाण लिहा"
                             />
                           </label>
 
+                          {/* पिनकोड — MANUAL */}
                           <label>
                             <span>पिनकोड</span>
                             <input
                               type="text"
                               inputMode="numeric"
-                              maxLength={10}
+                              maxLength={6}
                               value={profileForm.currentPincode}
-                              onChange={(event) =>
+                              onChange={(event) => {
+                                const value = event.target.value.replace(
+                                  /\D/g,
+                                  "",
+                                );
+
                                 updateProfileField(
                                   "currentPincode",
-                                  event.target.value,
-                                )
-                              }
+                                  value,
+                                );
+                              }}
+                              placeholder="उदा. 411001"
                             />
                           </label>
                         </div>
 
+                        <div className="profile-step-tip">
+                          शहर / गाव / ठिकाण आणि पिनकोड स्वतः लिहा.
+                        </div>
+
+                        {masterError && (
+                          <div className="profile-inline-error">
+                            {masterError}
+                          </div>
+                        )}
+
                         <label className="profile-about-field">
                           <span>सध्याचा पत्ता</span>
+
                           <textarea
                             rows={4}
                             value={profileForm.currentAddress}
@@ -4208,92 +5849,128 @@ const [editingRelativeForm, setEditingRelativeForm] =
                             <h2>मूळ गाव / Native Place</h2>
                           </div>
                         </div>
-
+                        
                         <div className="profile-form-grid">
-                          <label>
-                            <span>देश</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativeCountry}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativeCountry",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
 
-                          <label>
-                            <span>राज्य</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativeState}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativeState",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
+                        <label>
+                          <span>देश</span>
+                          <input
+                            type="text"
+                            value={profileForm.nativeCountry}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "nativeCountry",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="देश लिहा"
+                          />
+                        </label>
 
-                          <label>
-                            <span>जिल्हा</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativeDistrict}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativeDistrict",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
+                        <label>
+                          <span>राज्य</span>
+                          <select
+                            value={profileForm.nativeState}
+                            onChange={(event) => {
+                              updateProfileField(
+                                "nativeState",
+                                event.target.value,
+                              );
+                              updateProfileField("nativeDistrict", "");
+                              updateProfileField("nativeTaluka", "");
+                            }}
+                            disabled={masterStates.length === 0}
+                          >
+                            <option value="">राज्य निवडा</option>
 
-                          <label>
-                            <span>तालुका / तहसील</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativeTaluka}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativeTaluka",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
+                            {masterStates.map((state) => (
+                              <option key={state.id} value={state.name}>
+                                {state.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
 
-                          <label>
-                            <span>शहर / गाव</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativeCity}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativeCity",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
+                        <label>
+                          <span>जिल्हा</span>
+                          <select
+                            value={profileForm.nativeDistrict}
+                            onChange={(event) => {
+                              updateProfileField(
+                                "nativeDistrict",
+                                event.target.value,
+                              );
+                              updateProfileField("nativeTaluka", "");
+                            }}
+                            disabled={
+                              !profileForm.nativeState ||
+                              nativeMasterDistricts.length === 0
+                            }
+                          >
+                            <option value="">जिल्हा निवडा</option>
 
-                          <label>
-                            <span>मूळ गावाचे नाव</span>
-                            <input
-                              type="text"
-                              value={profileForm.nativePlace}
-                              onChange={(event) =>
-                                updateProfileField(
-                                  "nativePlace",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </label>
-                        </div>
+                            {nativeMasterDistricts.map((district) => (
+                              <option key={district.id} value={district.name}>
+                                {district.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label>
+                          <span>तालुका / तहसील</span>
+                          <select
+                            value={profileForm.nativeTaluka}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "nativeTaluka",
+                                event.target.value,
+                              )
+                            }
+                            disabled={
+                              !profileForm.nativeDistrict ||
+                              nativeMasterTalukas.length === 0
+                            }
+                          >
+                            <option value="">तालुका / तहसील निवडा</option>
+
+                            {nativeMasterTalukas.map((taluka) => (
+                              <option key={taluka.id} value={taluka.name}>
+                                {taluka.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <label>
+                          <span>शहर / गाव / ठिकाण</span>
+                          <input
+                            type="text"
+                            value={profileForm.nativeCity}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "nativeCity",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="शहर / गाव / ठिकाण लिहा"
+                          />
+                        </label>
+
+                        <label>
+                          <span>मूळ गावाचे नाव</span>
+                          <input
+                            type="text"
+                            value={profileForm.nativePlace}
+                            onChange={(event) =>
+                              updateProfileField(
+                                "nativePlace",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="मूळ गावाचे नाव लिहा"
+                          />
+                        </label>
                       </div>
 
                       <div className="profile-wizard-actions">
@@ -4307,10 +5984,17 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(9)}
+                          onClick={() => {
+                            setProfileStep(9);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -4401,7 +6085,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(10)}
+                          onClick={() => {
+                            setProfileStep(10);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -4607,7 +6297,13 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         <button
                           type="button"
                           className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(11)}
+                          onClick={() => {
+                            setProfileStep(11);
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
                         >
                           पुढे जा <span>→</span>
                         </button>
@@ -4878,22 +6574,26 @@ const [editingRelativeForm, setEditingRelativeForm] =
                         </label>
                       </div>
 
-                      <div className="profile-wizard-actions">
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() => setProfileStep(10)}
-                        >
-                          ← मागे
-                        </button>
-                        <button
-                          type="button"
-                          className="auth-submit profile-next-button"
-                          onClick={() => setProfileStep(12)}
-                        >
-                          पुढे जा <span>→</span>
-                        </button>
-                      </div>
+                    <div className="profile-wizard-actions">
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => setProfileStep(10)}
+                        disabled={profileSaving}
+                      >
+                        ← मागे
+                      </button>
+
+                      <button
+                        type="submit"
+                        className="auth-submit profile-next-button"
+                        disabled={profileSaving}
+                      >
+                        {profileSaving
+                          ? "प्रोफाइल जतन होत आहे..."
+                          : "✓ प्रोफाइल पडताळणीसाठी पाठवा"}
+                      </button>
+                    </div>
                     </div>
                   )}
 
@@ -5336,48 +7036,64 @@ const [editingRelativeForm, setEditingRelativeForm] =
 
                 <label>
                   <span>
-                    शहर
+                    जिल्हा
                   </span>
 
                   <select
                     value={
-                      searchForm.city
+                      searchForm.district
                     }
                     onChange={(event) =>
                       updateSearch(
-                        "city",
+                        "district",
                         event.target
                           .value,
                       )
                     }
                   >
                     <option>
-                      सर्व शहर
+                      सर्व जिल्हे
                     </option>
 
-                    <option>
-                      पुणे
+                    <option value="Ahilyanagar">अहिल्यानगर</option>
+                    <option value="Akola">अकोला</option>
+                    <option value="Amravati">अमरावती</option>
+                    <option value="Beed">बीड</option>
+                    <option value="Bhandara">भंडारा</option>
+                    <option value="Buldhana">बुलढाणा</option>
+                    <option value="Chandrapur">चंद्रपूर</option>
+                    <option value="Chhatrapati Sambhajinagar">
+                      छत्रपती संभाजीनगर
                     </option>
+                    <option value="Dharashiv">धाराशिव</option>
+                    <option value="Dhule">धुळे</option>
+                    <option value="Gadchiroli">गडचिरोली</option>
+                    <option value="Gondia">गोंदिया</option>
+                    <option value="Hingoli">हिंगोली</option>
+                    <option value="Jalgaon">जळगाव</option>
+                    <option value="Jalna">जालना</option>
+                    <option value="Kolhapur">कोल्हापूर</option>
+                    <option value="Latur">लातूर</option>
+                    <option value="Mumbai City">मुंबई शहर</option>
+                    <option value="Mumbai Suburban">मुंबई उपनगर</option>
+                    <option value="Nagpur">नागपूर</option>
+                    <option value="Nanded">नांदेड</option>
+                    <option value="Nandurbar">नंदुरबार</option>
+                    <option value="Nashik">नाशिक</option>
+                    <option value="Palghar">पालघर</option>
+                    <option value="Parbhani">परभणी</option>
+                    <option value="Pune">पुणे</option>
+                    <option value="Raigad">रायगड</option>
+                    <option value="Ratnagiri">रत्नागिरी</option>
+                    <option value="Sangli">सांगली</option>
+                    <option value="Satara">सातारा</option>
+                    <option value="Sindhudurg">सिंधुदुर्ग</option>
+                    <option value="Solapur">सोलापूर</option>
+                    <option value="Thane">ठाणे</option>
+                    <option value="Wardha">वर्धा</option>
+                    <option value="Washim">वाशिम</option>
+                    <option value="Yavatmal">यवतमाळ</option>
 
-                    <option>
-                      मुंबई
-                    </option>
-
-                    <option>
-                      नाशिक
-                    </option>
-
-                    <option>
-                      नागपूर
-                    </option>
-
-                    <option>
-                      कोल्हापूर
-                    </option>
-
-                    <option>
-                      सोलापूर
-                    </option>
                   </select>
                 </label>
 
@@ -5401,9 +7117,118 @@ const [editingRelativeForm, setEditingRelativeForm] =
                   ✓ {searchMessage}
                 </div>
               )}
+
+              {searchError && (
+                <div
+                  className="search-message"
+                  role="alert"
+                >
+                  ⚠ {searchError}
+                </div>
+              )}
+
+              {searchLoading && (
+                <div
+                  className="search-message"
+                  role="status"
+                >
+                  प्रोफाइल शोधत आहे...
+                </div>
+              )}
+
+              {!searchLoading &&
+                searchResults.length > 0 && (
+                  <div className="search-results">
+                    {searchResults.map(
+                      (profile) => (
+                        <article
+                          className="search-result-card"
+                          key={profile.id}
+                        >
+                          <h3>
+                            {profile.firstName}{" "}
+                            {profile.middleName
+                              ? `${profile.middleName} `
+                              : ""}
+                            {profile.lastName}
+                          </h3>
+
+                          <p>
+                            {profile.age
+                              ? `${profile.age} वर्षे`
+                              : ""}
+                            {profile.heightCm
+                              ? ` • ${profile.heightCm} सेमी`
+                              : ""}
+                          </p>
+
+                          <p>
+                            {profile.education ||
+                              "शिक्षण माहिती उपलब्ध नाही"}
+                          </p>
+
+                          <p>
+                            {profile.occupation ||
+                              "व्यवसाय माहिती उपलब्ध नाही"}
+                          </p>
+
+                          <p>
+                            {profile.caste ||
+                              "समाज माहिती उपलब्ध नाही"}
+                            {profile.subCaste
+                              ? ` • ${profile.subCaste}`
+                              : ""}
+                          </p>
+
+                          <p>
+                            {profile.city ||
+                              profile.currentCity ||
+                              "स्थान उपलब्ध नाही"}
+                          </p>
+
+                          <p>
+                            ID:{" "}
+                            {profile.profileCode ||
+                              profile.id}
+                          </p>
+                        </article>
+                      ),
+                    )}
+                  </div>
+                )}
+
             </div>
           </div>
         </section>
+
+
+
+            {/* =================================================
+            ADVANCED SEARCH
+            
+        <section
+          className="section advanced-search-section"
+          id="advanced-search"
+        >
+          <div className="container">
+            <div className="section-heading">
+              <span className="section-kicker">
+                प्रगत शोध
+              </span>
+
+              <h2>
+                ऍडव्हान्स शोध
+              </h2>
+
+              <p>
+                तुमच्या पसंतीनुसार योग्य जोडीदार शोधा.
+              </p>
+            </div>
+          </div>
+        </section>
+              ================================================= */}
+
+
 
         {/* =================================================
             SERVICES
@@ -5916,24 +7741,59 @@ const [editingRelativeForm, setEditingRelativeForm] =
                       पासवर्ड
                     </span>
 
-                    <input
-                      type="password"
-                      value={
-                        loginPassword
-                      }
-                      onChange={(
-                        event,
-                      ) =>
-                        setLoginPassword(
-                          event
-                            .target
-                            .value,
-                        )
-                      }
-                      placeholder="आपला पासवर्ड"
-                      autoComplete="current-password"
-                      required
-                    />
+                    <div
+                      style={{
+                        position: "relative",
+                      }}
+                    >
+                      <input
+                        type={
+                          showLoginPassword
+                            ? "text"
+                            : "password"
+                        }
+                        value={loginPassword}
+                        onChange={(event) =>
+                          setLoginPassword(
+                            event.target.value,
+                          )
+                        }
+                        placeholder="आपला पासवर्ड"
+                        autoComplete="current-password"
+                        required
+                        style={{
+                          paddingRight: "48px",
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        aria-label={
+                          showLoginPassword
+                            ? "पासवर्ड लपवा"
+                            : "पासवर्ड दाखवा"
+                        }
+                        onClick={() =>
+                          setShowLoginPassword(
+                            (current) => !current,
+                          )
+                        }
+                        style={{
+                          position: "absolute",
+                          right: "12px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          border: "none",
+                          background: "transparent",
+                          cursor: "pointer",
+                          fontSize: "20px",
+                          padding: "4px",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {showLoginPassword ? "🙉" : "🙈"}
+                      </button>
+                    </div>
                   </label>
 
                   {authError && (

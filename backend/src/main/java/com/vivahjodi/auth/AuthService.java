@@ -122,13 +122,16 @@ public class AuthService {
             message = "Login successful. Your profile is awaiting verification.";
         } else if ("ACTIVE".equals(user.getAccountStatus())) {
             message = "Login successful.";
-        } else {
+                } else {
             message = "Login successful.";
         }
 
+        user.setLastLogin(OffsetDateTime.now());
+        userRepository.save(user);
+
         // Generate JWT after successful authentication
         String token = jwtService.generateToken(user.getEmail());
-
+        
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),

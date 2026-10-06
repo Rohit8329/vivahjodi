@@ -2,24 +2,47 @@ package com.vivahjodi.profile;
 
 import com.vivahjodi.user.User;
 import com.vivahjodi.user.UserRepository;
+import com.vivahjodi.payment.PaymentRepository;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.time.OffsetDateTime;
+import java.util.UUID;
+import com.vivahjodi.profile.education.EducationDetail;
+import com.vivahjodi.profile.education.EducationDetailRepository;
+import com.vivahjodi.profile.education.EducationDetailResponse;
+import com.vivahjodi.profile.family.FamilyDetail;
+import com.vivahjodi.profile.family.FamilyDetailRepository;
+import com.vivahjodi.profile.family.FamilyDetailResponse;
+import com.vivahjodi.profile.occupation.OccupationDetail;
+import com.vivahjodi.profile.occupation.OccupationDetailRepository;
+import com.vivahjodi.profile.occupation.OccupationDetailResponse;
 
 @Service
 public class ProfileService {
 
-    private final ProfileRepository profileRepository;
-    private final UserRepository userRepository;
+private final ProfileRepository profileRepository;
+private final UserRepository userRepository;
+private final PaymentRepository paymentRepository;
+private final EducationDetailRepository educationDetailRepository;
+private final FamilyDetailRepository familyDetailRepository;
+private final OccupationDetailRepository occupationDetailRepository;
 
-    public ProfileService(
-            ProfileRepository profileRepository,
-            UserRepository userRepository) {
 
-        this.profileRepository = profileRepository;
-        this.userRepository = userRepository;
-    }
+public ProfileService(
+        ProfileRepository profileRepository,
+        UserRepository userRepository,
+        PaymentRepository paymentRepository,
+        EducationDetailRepository educationDetailRepository,
+        FamilyDetailRepository familyDetailRepository,
+        OccupationDetailRepository occupationDetailRepository) {
 
+    this.profileRepository = profileRepository;
+    this.userRepository = userRepository;
+    this.paymentRepository = paymentRepository;
+    this.educationDetailRepository = educationDetailRepository;
+    this.familyDetailRepository = familyDetailRepository;
+    this.occupationDetailRepository = occupationDetailRepository;
+}
 
     // =========================================================
     // CREATE PROFILE
@@ -160,6 +183,18 @@ public class ProfileService {
         profile.setCurrentPincode(
                 normalizeOptional(request.getCurrentPincode()));
 
+        profile.setCurrentState(
+                normalizeOptional(request.getCurrentState()));
+
+        profile.setCurrentDistrict(
+                normalizeOptional(request.getCurrentDistrict()));
+
+        profile.setCurrentTaluka(
+                normalizeOptional(request.getCurrentTaluka()));
+
+        profile.setCurrentCity(
+                normalizeOptional(request.getCurrentCity()));        
+
 
         // =====================================================
         // NATIVE PLACE
@@ -234,6 +269,51 @@ public class ProfileService {
 
         profile.setAboutMe(
                 normalizeOptional(request.getAboutMe()));
+
+
+        profile.setPartnerMinAge(request.getPartnerMinAge());
+profile.setPartnerMaxAge(request.getPartnerMaxAge());
+profile.setPartnerMinHeightCm(request.getPartnerMinHeightCm());
+profile.setPartnerMaxHeightCm(request.getPartnerMaxHeightCm());
+
+profile.setPartnerMaritalStatus(
+        normalizeOptional(request.getPartnerMaritalStatus())
+);
+profile.setPartnerMotherTongue(
+        normalizeOptional(request.getPartnerMotherTongue())
+);
+profile.setPartnerReligion(
+        normalizeOptional(request.getPartnerReligion())
+);
+profile.setPartnerCaste(
+        normalizeOptional(request.getPartnerCaste())
+);
+profile.setPartnerSubCaste(
+        normalizeOptional(request.getPartnerSubCaste())
+);
+profile.setPartnerZodiacSign(
+        normalizeOptional(request.getPartnerZodiacSign())
+);
+profile.setPartnerNakshatra(
+        normalizeOptional(request.getPartnerNakshatra())
+);
+profile.setPartnerManglikStatus(
+        normalizeOptional(request.getPartnerManglikStatus())
+);
+
+profile.setPartnerEducation(
+        normalizeOptional(request.getPartnerEducation())
+);
+profile.setPartnerOccupation(
+        normalizeOptional(request.getPartnerOccupation())
+);
+
+profile.setPartnerMinIncome(request.getPartnerMinIncome());
+profile.setPartnerMaxIncome(request.getPartnerMaxIncome());
+
+profile.setPartnerAbout(
+        normalizeOptional(request.getPartnerAbout())
+);
 
 
         // =====================================================
@@ -419,6 +499,18 @@ public class ProfileService {
         profile.setCurrentPincode(
                 normalizeOptional(request.getCurrentPincode()));
 
+        profile.setCurrentState(
+                normalizeOptional(request.getCurrentState()));
+
+        profile.setCurrentDistrict(
+                normalizeOptional(request.getCurrentDistrict()));
+
+        profile.setCurrentTaluka(
+                normalizeOptional(request.getCurrentTaluka()));
+
+        profile.setCurrentCity(
+                normalizeOptional(request.getCurrentCity()));
+
 
         // =====================================================
         // NATIVE PLACE
@@ -497,6 +589,51 @@ public class ProfileService {
                 normalizeOptional(request.getAboutMe()));
 
 
+        profile.setPartnerMinAge(request.getPartnerMinAge());
+profile.setPartnerMaxAge(request.getPartnerMaxAge());
+profile.setPartnerMinHeightCm(request.getPartnerMinHeightCm());
+profile.setPartnerMaxHeightCm(request.getPartnerMaxHeightCm());
+
+profile.setPartnerMaritalStatus(
+        normalizeOptional(request.getPartnerMaritalStatus())
+);
+profile.setPartnerMotherTongue(
+        normalizeOptional(request.getPartnerMotherTongue())
+);
+profile.setPartnerReligion(
+        normalizeOptional(request.getPartnerReligion())
+);
+profile.setPartnerCaste(
+        normalizeOptional(request.getPartnerCaste())
+);
+profile.setPartnerSubCaste(
+        normalizeOptional(request.getPartnerSubCaste())
+);
+profile.setPartnerZodiacSign(
+        normalizeOptional(request.getPartnerZodiacSign())
+);
+profile.setPartnerNakshatra(
+        normalizeOptional(request.getPartnerNakshatra())
+);
+profile.setPartnerManglikStatus(
+        normalizeOptional(request.getPartnerManglikStatus())
+);
+
+profile.setPartnerEducation(
+        normalizeOptional(request.getPartnerEducation())
+);
+profile.setPartnerOccupation(
+        normalizeOptional(request.getPartnerOccupation())
+);
+
+profile.setPartnerMinIncome(request.getPartnerMinIncome());
+profile.setPartnerMaxIncome(request.getPartnerMaxIncome());
+
+profile.setPartnerAbout(
+        normalizeOptional(request.getPartnerAbout())
+);        
+
+
         // =====================================================
         // TIMESTAMP
         // =====================================================
@@ -516,6 +653,198 @@ public class ProfileService {
     }
 
 
+
+
+    // =========================================================
+    // SUBMIT MY PROFILE FOR VERIFICATION
+    // =========================================================
+
+    public ProfileResponse submitMyProfileForVerification(
+            String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Authenticated user not found"));
+
+        Profile profile =
+                profileRepository.findByUserId(user.getId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Profile not found for this account"));
+
+                String currentStatus = profile.getProfileStatus();
+
+                if ("PENDING_VERIFICATION".equals(currentStatus)) {
+                return toResponse(profile);
+                }
+
+                if (!"DRAFT".equals(currentStatus)
+                        && !"REJECTED".equals(currentStatus)
+                        && !"ACTIVE".equals(currentStatus)) {
+
+                throw new IllegalArgumentException(
+                        "Profile cannot be submitted in its current status"
+                );
+                }
+
+        OffsetDateTime now =
+                OffsetDateTime.now();
+
+        profile.setProfileStatus(
+                "PENDING_VERIFICATION");
+
+        profile.setSubmittedAt(now);
+
+        profile.setVerifiedAt(null);
+
+        profile.setRejectionReason(null);
+
+        profile.setUpdatedAt(now);
+
+        Profile submittedProfile =
+                profileRepository.save(profile);
+
+        return toResponse(submittedProfile);
+    }
+
+
+
+
+
+// =========================================================
+// GET PENDING PROFILES FOR ADMIN REVIEW
+// =========================================================
+
+public List<ProfileResponse> getPendingProfilesForAdmin() {
+
+    List<Profile> profiles =
+            profileRepository
+                    .findByProfileStatusAndUser_RoleOrderBySubmittedAtAsc(
+                            "PENDING_VERIFICATION",
+                            "USER"
+                    );
+
+    return profiles.stream()
+            .map(this::toResponse)
+            .toList();
+}
+
+
+
+
+// =========================================================
+// ADMIN APPROVE PROFILE
+// =========================================================
+
+public ProfileResponse approveProfileForAdmin(UUID profileId) {
+
+    Profile profile =
+            profileRepository.findById(profileId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Profile not found"
+                    ));
+
+    if (!"PENDING_VERIFICATION".equals(profile.getProfileStatus())) {
+        throw new IllegalArgumentException(
+                "Profile cannot be approved in its current status"
+        );
+    }
+
+
+
+     // =====================================================
+    // PAYMENT CHECK
+    // =====================================================
+
+    boolean paymentSuccessful =
+            paymentRepository
+                    .findTopByUserIdOrderByCreatedAtDesc(
+                            profile.getUser().getId()
+                    )
+                    .map(payment ->
+                            "SUCCESS".equals(
+                                    payment.getPaymentStatus()
+                            )
+                    )
+                    .orElse(false);
+
+    if (!paymentSuccessful) {
+        throw new IllegalArgumentException(
+                "Payment is required before profile approval"
+        );
+    }
+
+
+    OffsetDateTime now = OffsetDateTime.now();
+
+    profile.setProfileStatus("ACTIVE");
+    profile.setVerifiedAt(now);
+    profile.setRejectionReason(null);
+    profile.setUpdatedAt(now);
+
+User user =
+        userRepository.findById(profile.getUser().getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "User not found for this profile"
+                ));
+
+user.setAccountStatus("ACTIVE");
+user.setUpdatedAt(now);
+
+userRepository.save(user);
+
+Profile approvedProfile =
+        profileRepository.save(profile);
+
+return toResponse(approvedProfile);
+}
+
+
+public ProfileResponse rejectProfileForAdmin(
+        UUID profileId,
+        String reason
+) {
+
+    Profile profile =
+            profileRepository.findById(profileId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Profile not found"
+                    ));
+
+    if (!"PENDING_VERIFICATION".equals(
+            profile.getProfileStatus()
+    )) {
+        throw new IllegalArgumentException(
+                "Profile cannot be rejected in its current status"
+        );
+    }
+
+    if (reason == null || reason.trim().isEmpty()) {
+        throw new IllegalArgumentException(
+                "Rejection reason is required"
+        );
+    }
+
+    OffsetDateTime now =
+            OffsetDateTime.now();
+
+    profile.setProfileStatus("REJECTED");
+    profile.setRejectionReason(
+            reason.trim()
+    );
+    profile.setVerifiedAt(null);
+    profile.setUpdatedAt(now);
+
+    Profile rejectedProfile =
+            profileRepository.save(profile);
+
+    return toResponse(rejectedProfile);
+}
+
+
+
+
+
+
     // =========================================================
     // ENTITY → RESPONSE
     // =========================================================
@@ -524,6 +853,165 @@ public class ProfileService {
 
         ProfileResponse response =
                 new ProfileResponse();
+
+        EducationDetail education =
+        educationDetailRepository
+                .findByProfileIdOrderByCreatedAtAsc(
+                        profile.getId()
+                )
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+if (education != null) {
+
+    EducationDetailResponse educationResponse =
+            new EducationDetailResponse();
+
+    educationResponse.setId(
+            education.getId());
+
+    educationResponse.setEducationLevel(
+            education.getEducationLevel());
+
+    educationResponse.setEducationStream(
+            education.getEducationStream());
+
+    educationResponse.setQualification(
+            education.getQualification());
+
+    educationResponse.setSpecialization(
+            education.getSpecialization());
+
+    educationResponse.setInstituteName(
+            education.getInstituteName());
+
+    educationResponse.setPassingYear(
+            education.getPassingYear());
+
+    educationResponse.setCreatedAt(
+            education.getCreatedAt());
+
+    educationResponse.setUpdatedAt(
+            education.getUpdatedAt());
+
+    response.setEducation(
+            educationResponse);
+}
+
+    FamilyDetail family =
+    familyDetailRepository
+        .findByProfileId(profile.getId())
+        .orElse(null);
+
+if (family != null) {
+    FamilyDetailResponse familyResponse =
+        new FamilyDetailResponse();
+
+    familyResponse.setId(family.getId());
+    familyResponse.setProfileId(family.getProfile().getId());
+
+    familyResponse.setFatherName(family.getFatherName());
+    familyResponse.setFatherOccupation(family.getFatherOccupation());
+
+    familyResponse.setMotherName(family.getMotherName());
+    familyResponse.setMotherOccupation(family.getMotherOccupation());
+
+    familyResponse.setFamilyType(family.getFamilyType());
+    familyResponse.setFamilyValues(family.getFamilyValues());
+    familyResponse.setFamilyStatus(family.getFamilyStatus());
+
+    familyResponse.setSiblingsCount(family.getSiblingsCount());
+    familyResponse.setBrothersCount(family.getBrothersCount());
+    familyResponse.setSistersCount(family.getSistersCount());
+
+    familyResponse.setNativePlace(family.getNativePlace());
+    familyResponse.setFamilyAbout(family.getFamilyAbout());
+
+    familyResponse.setNumberOfBrothers(family.getNumberOfBrothers());
+    familyResponse.setBrothersMarried(family.getBrothersMarried());
+
+    familyResponse.setNumberOfSisters(family.getNumberOfSisters());
+    familyResponse.setSistersMarried(family.getSistersMarried());
+
+    familyResponse.setParentalDetails(family.getParentalDetails());
+
+    familyResponse.setCreatedAt(family.getCreatedAt());
+    familyResponse.setUpdatedAt(family.getUpdatedAt());
+
+    response.setFamily(familyResponse);
+}
+
+        OccupationDetail occupation =
+                occupationDetailRepository
+                        .findByProfileId(profile.getId())
+                        .orElse(null);
+
+        if (occupation != null) {
+
+            OccupationDetailResponse occupationResponse =
+                    new OccupationDetailResponse();
+
+            occupationResponse.setId(
+                    occupation.getId());
+
+            occupationResponse.setProfileId(
+                    occupation.getProfile().getId());
+
+            occupationResponse.setOccupation(
+                    occupation.getOccupation());
+
+            occupationResponse.setDesignation(
+                    occupation.getDesignation());
+
+            occupationResponse.setCompanyName(
+                    occupation.getCompanyName());
+
+            occupationResponse.setEmploymentType(
+                    occupation.getEmploymentType());
+
+            occupationResponse.setWorkCity(
+                    occupation.getWorkCity());
+
+            occupationResponse.setWorkState(
+                    occupation.getWorkState());
+
+            occupationResponse.setAnnualIncomeInr(
+                occupation.getAnnualIncomeInr() != null
+                        ? occupation.getAnnualIncomeInr().longValue()
+                        : null);
+
+            occupationResponse.setBusinessDetails(
+                    occupation.getBusinessDetails());
+
+            occupationResponse.setSubOccupation(
+                    occupation.getSubOccupation());
+
+            occupationResponse.setEmployedIn(
+                    occupation.getEmployedIn());
+
+            occupationResponse.setWorkLocation(
+                    occupation.getWorkLocation());
+
+            occupationResponse.setAnnualIncome(
+                occupation.getAnnualIncome() != null
+                        ? occupation.getAnnualIncome().toPlainString()
+                        : null);
+
+            occupationResponse.setIncomeCurrency(
+                    occupation.getIncomeCurrency());
+
+            occupationResponse.setCreatedAt(
+                    occupation.getCreatedAt());
+
+            occupationResponse.setUpdatedAt(
+                    occupation.getUpdatedAt());
+
+            response.setOccupation(
+                    occupationResponse);
+        }
+
+
 
 
         // =====================================================
@@ -649,6 +1137,18 @@ public class ProfileService {
         response.setCurrentPincode(
                 profile.getCurrentPincode());
 
+        response.setCurrentState(
+                profile.getCurrentState());
+
+        response.setCurrentDistrict(
+                profile.getCurrentDistrict());
+
+        response.setCurrentTaluka(
+                profile.getCurrentTaluka());
+
+        response.setCurrentCity(
+                profile.getCurrentCity());        
+
 
         // =====================================================
         // NATIVE PLACE
@@ -728,8 +1228,43 @@ public class ProfileService {
         response.setAboutMe(
                 profile.getAboutMe());
 
+
+        response.setPartnerMinAge(profile.getPartnerMinAge());
+        response.setPartnerMaxAge(profile.getPartnerMaxAge());
+        response.setPartnerMinHeightCm(profile.getPartnerMinHeightCm());
+        response.setPartnerMaxHeightCm(profile.getPartnerMaxHeightCm());
+
+        response.setPartnerMaritalStatus(profile.getPartnerMaritalStatus());
+        response.setPartnerMotherTongue(profile.getPartnerMotherTongue());
+        response.setPartnerReligion(profile.getPartnerReligion());
+        response.setPartnerCaste(profile.getPartnerCaste());
+        response.setPartnerSubCaste(profile.getPartnerSubCaste());
+        response.setPartnerZodiacSign(profile.getPartnerZodiacSign());
+        response.setPartnerNakshatra(profile.getPartnerNakshatra());
+        response.setPartnerManglikStatus(profile.getPartnerManglikStatus());
+
+        response.setPartnerEducation(profile.getPartnerEducation());
+        response.setPartnerOccupation(profile.getPartnerOccupation());
+
+        response.setPartnerMinIncome(profile.getPartnerMinIncome());
+        response.setPartnerMaxIncome(profile.getPartnerMaxIncome());
+
+        response.setPartnerAbout(profile.getPartnerAbout());
+       
+
         response.setProfileStatus(
                 profile.getProfileStatus());
+
+        response.setPaymentStatus(
+        paymentRepository
+                .findTopByUserIdOrderByCreatedAtDesc(
+                        profile.getUser().getId()
+                )
+                .map(payment -> payment.getPaymentStatus())
+                .orElse("PENDING")
+        );
+
+
 
 
         // =====================================================

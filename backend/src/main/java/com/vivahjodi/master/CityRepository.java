@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface CityRepository extends JpaRepository<City, UUID> {
 
     List<City> findByDistrictIdAndActiveTrueOrderByNameAsc(UUID districtId);
+
+    List<City> findByTalukaIdAndActiveTrueOrderByNameAsc(UUID talukaId);
 }

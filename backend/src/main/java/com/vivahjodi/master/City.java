@@ -24,6 +24,10 @@ public class City {
     @JoinColumn(name = "district_id")
     private District district;
 
+    @ManyToOne
+    @JoinColumn(name = "taluka_id")
+    private Taluka taluka;
+
     @Column(nullable = false)
     private String name;
 
@@ -55,6 +59,14 @@ public class City {
 
     public void setDistrict(District district) {
         this.district = district;
+    }
+
+    public Taluka getTaluka() {
+        return taluka;
+    }
+
+    public void setTaluka(Taluka taluka) {
+        this.taluka = taluka;
     }
 
     public String getName() {

@@ -96,6 +96,14 @@ public class ProfileRequest {
 
     private String currentPincode;
 
+    private String currentState;
+
+    private String currentDistrict;
+
+    private String currentTaluka;
+
+    private String currentCity;
+
 
     // =========================================================
     // NATIVE PLACE INFORMATION
@@ -137,18 +145,200 @@ public class ProfileRequest {
     private String nriAddress;
 
 
+// =========================================================
+// PARTNER PREFERENCES
+// =========================================================
+
+private Integer partnerMinAge;
+
+private Integer partnerMaxAge;
+
+private Integer partnerMinHeightCm;
+
+private Integer partnerMaxHeightCm;
+
+private String partnerMaritalStatus;
+
+private String partnerMotherTongue;
+
+private String partnerReligion;
+
+private String partnerCaste;
+
+private String partnerSubCaste;
+
+private String partnerZodiacSign;
+
+private String partnerNakshatra;
+
+private String partnerManglikStatus;
+
+private String partnerEducation;
+
+private String partnerOccupation;
+
+private Integer partnerMinIncome;
+
+private Integer partnerMaxIncome;
+
+private String partnerAbout;
+
+
+
+// =========================================================
+// PROFILE VISIBILITY / REVIEW INFORMATION
+// =========================================================
+
+private String visibility;
+
+
+// =========================================================
+// ABOUT ME
+// =========================================================
+
+private String aboutMe;
+
+
     // =========================================================
-    // PROFILE VISIBILITY / REVIEW INFORMATION
+    // PARTNER PREFERENCES GETTERS AND SETTERS
     // =========================================================
 
-    private String visibility;
+    public Integer getPartnerMinAge() {
+        return partnerMinAge;
+    }
 
+    public void setPartnerMinAge(Integer partnerMinAge) {
+        this.partnerMinAge = partnerMinAge;
+    }
 
-    // =========================================================
-    // ABOUT ME
-    // =========================================================
+    public Integer getPartnerMaxAge() {
+        return partnerMaxAge;
+    }
 
-    private String aboutMe;
+    public void setPartnerMaxAge(Integer partnerMaxAge) {
+        this.partnerMaxAge = partnerMaxAge;
+    }
+
+    public Integer getPartnerMinHeightCm() {
+        return partnerMinHeightCm;
+    }
+
+    public void setPartnerMinHeightCm(Integer partnerMinHeightCm) {
+        this.partnerMinHeightCm = partnerMinHeightCm;
+    }
+
+    public Integer getPartnerMaxHeightCm() {
+        return partnerMaxHeightCm;
+    }
+
+    public void setPartnerMaxHeightCm(Integer partnerMaxHeightCm) {
+        this.partnerMaxHeightCm = partnerMaxHeightCm;
+    }
+
+    public String getPartnerMaritalStatus() {
+        return partnerMaritalStatus;
+    }
+
+    public void setPartnerMaritalStatus(String partnerMaritalStatus) {
+        this.partnerMaritalStatus = partnerMaritalStatus;
+    }
+
+    public String getPartnerMotherTongue() {
+        return partnerMotherTongue;
+    }
+
+    public void setPartnerMotherTongue(String partnerMotherTongue) {
+        this.partnerMotherTongue = partnerMotherTongue;
+    }
+
+    public String getPartnerReligion() {
+        return partnerReligion;
+    }
+
+    public void setPartnerReligion(String partnerReligion) {
+        this.partnerReligion = partnerReligion;
+    }
+
+    public String getPartnerCaste() {
+        return partnerCaste;
+    }
+
+    public void setPartnerCaste(String partnerCaste) {
+        this.partnerCaste = partnerCaste;
+    }
+
+    public String getPartnerSubCaste() {
+        return partnerSubCaste;
+    }
+
+    public void setPartnerSubCaste(String partnerSubCaste) {
+        this.partnerSubCaste = partnerSubCaste;
+    }
+
+    public String getPartnerZodiacSign() {
+        return partnerZodiacSign;
+    }
+
+    public void setPartnerZodiacSign(String partnerZodiacSign) {
+        this.partnerZodiacSign = partnerZodiacSign;
+    }
+
+    public String getPartnerNakshatra() {
+        return partnerNakshatra;
+    }
+
+    public void setPartnerNakshatra(String partnerNakshatra) {
+        this.partnerNakshatra = partnerNakshatra;
+    }
+
+    public String getPartnerManglikStatus() {
+        return partnerManglikStatus;
+    }
+
+    public void setPartnerManglikStatus(String partnerManglikStatus) {
+        this.partnerManglikStatus = partnerManglikStatus;
+    }
+
+    public String getPartnerEducation() {
+        return partnerEducation;
+    }
+
+    public void setPartnerEducation(String partnerEducation) {
+        this.partnerEducation = partnerEducation;
+    }
+
+    public String getPartnerOccupation() {
+        return partnerOccupation;
+    }
+
+    public void setPartnerOccupation(String partnerOccupation) {
+        this.partnerOccupation = partnerOccupation;
+    }
+
+    public Integer getPartnerMinIncome() {
+        return partnerMinIncome;
+    }
+
+    public void setPartnerMinIncome(Integer partnerMinIncome) {
+        this.partnerMinIncome = partnerMinIncome;
+    }
+
+    public Integer getPartnerMaxIncome() {
+        return partnerMaxIncome;
+    }
+
+    public void setPartnerMaxIncome(Integer partnerMaxIncome) {
+        this.partnerMaxIncome = partnerMaxIncome;
+    }
+
+    public String getPartnerAbout() {
+        return partnerAbout;
+    }
+
+    public void setPartnerAbout(String partnerAbout) {
+        this.partnerAbout = partnerAbout;
+    }
+
 
 
     // =========================================================
@@ -441,6 +631,37 @@ public class ProfileRequest {
         this.nativePlace = nativePlace;
     }
 
+        public String getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(String currentState) {
+        this.currentState = currentState;
+    }
+
+    public String getCurrentDistrict() {
+        return currentDistrict;
+    }
+
+    public void setCurrentDistrict(String currentDistrict) {
+        this.currentDistrict = currentDistrict;
+    }
+
+    public String getCurrentTaluka() {
+        return currentTaluka;
+    }
+
+    public void setCurrentTaluka(String currentTaluka) {
+        this.currentTaluka = currentTaluka;
+    }
+
+    public String getCurrentCity() {
+        return currentCity;
+    }
+
+    public void setCurrentCity(String currentCity) {
+        this.currentCity = currentCity;
+    }
 
     public String getNativeCountry() {
         return nativeCountry;

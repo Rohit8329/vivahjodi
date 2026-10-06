@@ -141,7 +141,6 @@ public class OccupationDetailResponse {
     public void setAnnualIncome(String annualIncome) {
         this.annualIncome = annualIncome;
     }
-
     public String getIncomeCurrency() {
         return incomeCurrency;
     }

@@ -151,6 +151,18 @@ public class Profile {
     @Column(name = "current_pincode", length = 20)
     private String currentPincode;
 
+    @Column(name = "current_state", length = 100)
+    private String currentState;
+
+    @Column(name = "current_district", length = 100)
+    private String currentDistrict;
+
+    @Column(name = "current_taluka", length = 100)
+    private String currentTaluka;
+
+    @Column(name = "current_city", length = 100)
+    private String currentCity;
+
     // =========================================================
     // NATIVE PLACE
     // =========================================================
@@ -211,6 +223,62 @@ public class Profile {
 
     @Column(name = "city", length = 100)
     private String city;
+
+
+    // =========================================================
+// PARTNER PREFERENCES
+// =========================================================
+
+@Column(name = "partner_min_age")
+private Integer partnerMinAge;
+
+@Column(name = "partner_max_age")
+private Integer partnerMaxAge;
+
+@Column(name = "partner_min_height_cm")
+private Integer partnerMinHeightCm;
+
+@Column(name = "partner_max_height_cm")
+private Integer partnerMaxHeightCm;
+
+@Column(name = "partner_marital_status", length = 30)
+private String partnerMaritalStatus;
+
+@Column(name = "partner_mother_tongue", length = 50)
+private String partnerMotherTongue;
+
+@Column(name = "partner_religion", length = 50)
+private String partnerReligion;
+
+@Column(name = "partner_caste", length = 100)
+private String partnerCaste;
+
+@Column(name = "partner_sub_caste", length = 100)
+private String partnerSubCaste;
+
+@Column(name = "partner_zodiac_sign", length = 50)
+private String partnerZodiacSign;
+
+@Column(name = "partner_nakshatra", length = 100)
+private String partnerNakshatra;
+
+@Column(name = "partner_manglik_status", length = 50)
+private String partnerManglikStatus;
+
+@Column(name = "partner_education", length = 200)
+private String partnerEducation;
+
+@Column(name = "partner_occupation", length = 200)
+private String partnerOccupation;
+
+@Column(name = "partner_min_income")
+private Integer partnerMinIncome;
+
+@Column(name = "partner_max_income")
+private Integer partnerMaxIncome;
+
+@Column(name = "partner_about", columnDefinition = "TEXT")
+private String partnerAbout;
 
     // =========================================================
     // ABOUT ME
@@ -535,6 +603,38 @@ public class Profile {
         return nativeCountry;
     }
 
+        public String getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(String currentState) {
+        this.currentState = currentState;
+    }
+
+    public String getCurrentDistrict() {
+        return currentDistrict;
+    }
+
+    public void setCurrentDistrict(String currentDistrict) {
+        this.currentDistrict = currentDistrict;
+    }
+
+    public String getCurrentTaluka() {
+        return currentTaluka;
+    }
+
+    public void setCurrentTaluka(String currentTaluka) {
+        this.currentTaluka = currentTaluka;
+    }
+
+    public String getCurrentCity() {
+        return currentCity;
+    }
+
+    public void setCurrentCity(String currentCity) {
+        this.currentCity = currentCity;
+    }
+
     public void setNativeCountry(String nativeCountry) {
         this.nativeCountry = nativeCountry;
     }
@@ -698,4 +798,149 @@ public class Profile {
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+
+
+        // =========================================================
+    // PARTNER PREFERENCES GETTERS AND SETTERS
+    // =========================================================
+
+    public Integer getPartnerMinAge() {
+        return partnerMinAge;
+    }
+
+    public void setPartnerMinAge(Integer partnerMinAge) {
+        this.partnerMinAge = partnerMinAge;
+    }
+
+    public Integer getPartnerMaxAge() {
+        return partnerMaxAge;
+    }
+
+    public void setPartnerMaxAge(Integer partnerMaxAge) {
+        this.partnerMaxAge = partnerMaxAge;
+    }
+
+    public Integer getPartnerMinHeightCm() {
+        return partnerMinHeightCm;
+    }
+
+    public void setPartnerMinHeightCm(Integer partnerMinHeightCm) {
+        this.partnerMinHeightCm = partnerMinHeightCm;
+    }
+
+    public Integer getPartnerMaxHeightCm() {
+        return partnerMaxHeightCm;
+    }
+
+    public void setPartnerMaxHeightCm(Integer partnerMaxHeightCm) {
+        this.partnerMaxHeightCm = partnerMaxHeightCm;
+    }
+
+    public String getPartnerMaritalStatus() {
+        return partnerMaritalStatus;
+    }
+
+    public void setPartnerMaritalStatus(String partnerMaritalStatus) {
+        this.partnerMaritalStatus = partnerMaritalStatus;
+    }
+
+    public String getPartnerMotherTongue() {
+        return partnerMotherTongue;
+    }
+
+    public void setPartnerMotherTongue(String partnerMotherTongue) {
+        this.partnerMotherTongue = partnerMotherTongue;
+    }
+
+    public String getPartnerReligion() {
+        return partnerReligion;
+    }
+
+    public void setPartnerReligion(String partnerReligion) {
+        this.partnerReligion = partnerReligion;
+    }
+
+    public String getPartnerCaste() {
+        return partnerCaste;
+    }
+
+    public void setPartnerCaste(String partnerCaste) {
+        this.partnerCaste = partnerCaste;
+    }
+
+    public String getPartnerSubCaste() {
+        return partnerSubCaste;
+    }
+
+    public void setPartnerSubCaste(String partnerSubCaste) {
+        this.partnerSubCaste = partnerSubCaste;
+    }
+
+    public String getPartnerZodiacSign() {
+        return partnerZodiacSign;
+    }
+
+    public void setPartnerZodiacSign(String partnerZodiacSign) {
+        this.partnerZodiacSign = partnerZodiacSign;
+    }
+
+    public String getPartnerNakshatra() {
+        return partnerNakshatra;
+    }
+
+    public void setPartnerNakshatra(String partnerNakshatra) {
+        this.partnerNakshatra = partnerNakshatra;
+    }
+
+    public String getPartnerManglikStatus() {
+        return partnerManglikStatus;
+    }
+
+    public void setPartnerManglikStatus(String partnerManglikStatus) {
+        this.partnerManglikStatus = partnerManglikStatus;
+    }
+
+    public String getPartnerEducation() {
+        return partnerEducation;
+    }
+
+    public void setPartnerEducation(String partnerEducation) {
+        this.partnerEducation = partnerEducation;
+    }
+
+    public String getPartnerOccupation() {
+        return partnerOccupation;
+    }
+
+    public void setPartnerOccupation(String partnerOccupation) {
+        this.partnerOccupation = partnerOccupation;
+    }
+
+    public Integer getPartnerMinIncome() {
+        return partnerMinIncome;
+    }
+
+    public void setPartnerMinIncome(Integer partnerMinIncome) {
+        this.partnerMinIncome = partnerMinIncome;
+    }
+
+    public Integer getPartnerMaxIncome() {
+        return partnerMaxIncome;
+    }
+
+    public void setPartnerMaxIncome(Integer partnerMaxIncome) {
+        this.partnerMaxIncome = partnerMaxIncome;
+    }
+
+    public String getPartnerAbout() {
+        return partnerAbout;
+    }
+
+    public void setPartnerAbout(String partnerAbout) {
+        this.partnerAbout = partnerAbout;
+    }
+
+
+
 }

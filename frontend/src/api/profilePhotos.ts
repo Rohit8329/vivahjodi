@@ -4,6 +4,7 @@ const API_BASE_URL =
 export type ProfilePhoto = {
   id: string;
   storagePath: string;
+  photoUrl: string | null;
   originalFileName: string | null;
   mimeType: string | null;
   primary: boolean;
@@ -128,4 +129,35 @@ export async function deleteProfilePhoto(
       result.message || "फोटो हटवता आला नाही.",
     );
   }
+
+}
+
+/* =========================================================
+   UPLOAD PROFILE PHOTO
+   ========================================================= */
+
+export async function uploadProfilePhoto(
+  token: string,
+  file: File,
+  primary: boolean,
+  displayOrder: number,
+): Promise<ProfilePhoto> {
+  const formData = new FormData();
+
+  formData.append("file", file);
+  formData.append("primary", String(primary));
+  formData.append("displayOrder", String(displayOrder));
+
+  const response = await fetch(
+    `${API_BASE_URL}/profiles/me/photos/upload`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    },
+  );
+
+  return handleResponse<ProfilePhoto>(response);
 }

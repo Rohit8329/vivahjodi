@@ -2788,3 +2788,712 @@
     padding: 15px;
   }
 }
+
+/* =========================================================
+   ADMIN DASHBOARD
+   Uses the same VivahJodi cream/wine/gold visual system
+   ========================================================= */
+
+.admin-dashboard-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 56px 24px 90px;
+  background: transparent;
+  color: var(--wine-deep);
+}
+
+.admin-dashboard-container {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+/* =========================================================
+   ADMIN HEADER
+   ========================================================= */
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+
+  border-bottom: 1px solid rgba(181, 138, 67, 0.35);
+}
+
+.admin-dashboard-header h1 {
+  margin: 0;
+
+  color: var(--wine-dark);
+
+  font-family:
+    "Noto Serif Devanagari",
+    "Noto Sans Devanagari",
+    Georgia,
+    serif;
+
+  font-size: clamp(34px, 5vw, 54px);
+  line-height: 1.15;
+}
+
+.admin-dashboard-header p {
+  margin: 10px 0 0;
+
+  color: #78656a;
+
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.admin-dashboard-header .secondary-button {
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   DASHBOARD STATE
+   ========================================================= */
+
+.admin-dashboard-state {
+  width: 100%;
+  padding: 48px 28px;
+
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.72);
+
+  border: 1px solid rgba(181, 138, 67, 0.25);
+  border-radius: 20px;
+
+  box-shadow:
+    0 16px 45px rgba(66, 19, 31, 0.07);
+}
+
+.admin-dashboard-state p {
+  margin: 0;
+
+  color: var(--wine-dark);
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.admin-dashboard-error {
+  background: rgba(255, 245, 247, 0.9);
+
+  border-color: rgba(163, 58, 79, 0.35);
+
+  color: #a33a4f;
+}
+
+/* =========================================================
+   PROFILE LIST
+   ========================================================= */
+
+.admin-profile-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(330px, 1fr)
+    );
+
+  gap: 26px;
+}
+
+/* =========================================================
+   PROFILE CARD
+   ========================================================= */
+
+.admin-profile-card {
+  position: relative;
+
+  overflow: hidden;
+
+  padding: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 250, 246, 0.9)
+    );
+
+  border: 1px solid rgba(181, 138, 67, 0.28);
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 18px 50px rgba(66, 19, 31, 0.08);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.admin-profile-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--wine-dark),
+      var(--gold),
+      var(--rose)
+    );
+}
+
+.admin-profile-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 24px 60px rgba(66, 19, 31, 0.12);
+}
+
+/* =========================================================
+   PROFILE CARD HEADER
+   ========================================================= */
+
+.admin-profile-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 24px;
+}
+
+.admin-profile-card-header h2 {
+  margin: 0;
+
+  color: var(--wine-dark);
+
+  font-family:
+    "Noto Serif Devanagari",
+    "Noto Sans Devanagari",
+    Georgia,
+    serif;
+
+  font-size: 27px;
+  line-height: 1.35;
+}
+
+.admin-profile-status {
+  flex-shrink: 0;
+
+  padding: 6px 10px;
+
+  border: 1px solid rgba(181, 138, 67, 0.35);
+  border-radius: 999px;
+
+  background: rgba(181, 138, 67, 0.1);
+
+  color: #8a672f;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   PROFILE DETAILS
+   ========================================================= */
+
+.admin-profile-details {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 24px;
+}
+
+.admin-profile-detail {
+  min-width: 0;
+
+  padding: 12px 14px;
+
+  background: rgba(255, 255, 255, 0.62);
+
+  border: 1px solid rgba(234, 219, 213, 0.9);
+
+  border-radius: 11px;
+}
+
+.admin-profile-detail.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-profile-detail-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #9b858c;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.admin-profile-detail-value {
+  display: block;
+
+  color: var(--wine-deep);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  word-break: break-word;
+}
+
+/* =========================================================
+   ADMIN ACTION BUTTONS
+   ========================================================= */
+
+.admin-profile-actions {
+  display: flex;
+
+  gap: 12px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid rgba(181, 138, 67, 0.18);
+}
+
+.admin-profile-actions button {
+  flex: 1;
+
+  min-height: 45px;
+
+  padding: 10px 16px;
+
+  border-radius: 10px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.admin-profile-actions button:hover {
+  transform: translateY(-2px);
+}
+
+/* APPROVE */
+
+.admin-profile-actions .admin-approve-button {
+  border: 1px solid var(--wine-dark);
+
+  background: var(--wine-dark);
+
+  color: white;
+
+  box-shadow:
+    0 7px 20px rgba(101, 24, 47, 0.16);
+}
+
+.admin-profile-actions .admin-approve-button:hover {
+  background: var(--wine);
+
+  box-shadow:
+    0 11px 26px rgba(101, 24, 47, 0.22);
+}
+
+/* REJECT */
+
+.admin-profile-actions .admin-reject-button {
+  border: 1px solid rgba(163, 58, 79, 0.45);
+
+  background: transparent;
+
+  color: #a33a4f;
+}
+
+.admin-profile-actions .admin-reject-button:hover {
+  background: rgba(163, 58, 79, 0.07);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .admin-dashboard-page {
+    padding: 42px 18px 70px;
+  }
+
+  .admin-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .admin-dashboard-header h1 {
+    font-size: 38px;
+  }
+
+  .admin-profile-details {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-profile-detail.full-width {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-dashboard-page {
+    padding: 32px 14px 60px;
+  }
+
+  .admin-dashboard-header h1 {
+    font-size: 31px;
+  }
+
+  .admin-dashboard-header p {
+    font-size: 14px;
+  }
+
+  .admin-profile-list {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-profile-card {
+    padding: 22px 18px;
+  }
+
+  .admin-profile-card-header {
+    flex-direction: column;
+  }
+
+  .admin-profile-actions {
+    flex-direction: column;
+  }
+
+  .admin-profile-actions button {
+    width: 100%;
+  }
+
+  .admin-payment-success {
+  color: #15803d;
+  font-weight: 700;
+  }
+
+  .admin-payment-pending {
+    color: #b45309;
+    font-weight: 700;
+  }
+
+  .admin-approve-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+
+   /* =========================================================
+   SEARCH NAV DROPDOWN
+   ========================================================= */
+
+.nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-dropdown-trigger {
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+}
+
+.nav-dropdown-trigger span {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+
+  width: 200px;
+  padding: 6px;
+
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.14);
+  border-radius: 10px;
+
+  box-shadow: 0 12px 30px rgba(56, 20, 32, 0.16);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s ease;
+
+  z-index: 1000;
+}
+
+.nav-dropdown-menu a {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  border-radius: 7px;
+}
+
+.nav-dropdown-menu a + a {
+  border-top: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 0;
+}
+
+.nav-dropdown-menu a:hover {
+  background: rgba(128, 31, 67, 0.07);
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   ADVANCED SEARCH PAGE
+   ========================================================= */
+
+.advanced-search-page {
+  min-height: 100vh;
+}
+
+.advanced-search-card {
+  width: 100%;
+  max-width: 1000px;
+  margin: 35px auto 0;
+  padding: 30px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 16px;
+
+  box-shadow: 0 12px 35px rgba(56, 20, 32, 0.08);
+}
+
+.advanced-search-card-heading {
+  margin-bottom: 26px;
+}
+
+.advanced-search-card-heading h2 {
+  margin: 0 0 8px;
+}
+
+.advanced-search-card-heading p {
+  margin: 0;
+}
+
+.advanced-search-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.advanced-search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advanced-search-field label {
+  font-weight: 600;
+}
+
+.advanced-search-field input,
+.advanced-search-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(128, 31, 67, 0.18);
+  border-radius: 8px;
+
+  background: #ffffff;
+  font: inherit;
+}
+
+.advanced-search-field input:focus,
+.advanced-search-field select:focus {
+  outline: none;
+  border-color: rgba(128, 31, 67, 0.55);
+}
+
+@media (max-width: 700px) {
+  .advanced-search-card {
+    padding: 20px;
+  }
+
+  .advanced-search-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =================================================
+   ADVANCED SEARCH - SEARCH ACTION
+   ================================================= */
+
+.advanced-search-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(128, 31, 67, 0.1);
+}
+
+.advanced-search-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  min-width: 245px;
+  min-height: 56px;
+  padding: 14px 28px;
+
+  border: 1px solid rgba(128, 31, 67, 0.35);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    #801f43 0%,
+    #963052 100%
+  );
+
+  color: #ffffff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+
+  box-shadow:
+    0 10px 24px rgba(128, 31, 67, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.advanced-search-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 30px rgba(128, 31, 67, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  filter: brightness(1.05);
+}
+
+.advanced-search-submit:active:not(:disabled) {
+  transform: translateY(0);
+
+  box-shadow:
+    0 7px 16px rgba(128, 31, 67, 0.2);
+}
+
+.advanced-search-submit:focus-visible {
+  outline: 3px solid rgba(128, 31, 67, 0.2);
+  outline-offset: 4px;
+}
+
+.advanced-search-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: 0 7px 16px rgba(128, 31, 67, 0.12);
+}
+
+.advanced-search-submit-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.14);
+
+  font-size: 20px;
+  line-height: 1;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.advanced-search-submit:hover:not(:disabled)
+  .advanced-search-submit-arrow {
+  transform: translateX(3px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 700px) {
+  .advanced-search-actions {
+    margin-top: 28px;
+    padding-top: 22px;
+  }
+
+  .advanced-search-submit {
+    width: 100%;
+    min-width: 0;
+  }
+}

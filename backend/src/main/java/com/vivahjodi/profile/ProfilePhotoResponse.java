@@ -15,6 +15,8 @@ public class ProfilePhotoResponse {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
+    private String photoUrl;
+
     public UUID getId() {
         return id;
     }
@@ -85,5 +87,13 @@ public class ProfilePhotoResponse {
 
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

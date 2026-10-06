@@ -54,4 +54,16 @@ public class ProfileController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/me/submit")
+    public ResponseEntity<ProfileResponse> submitMyProfileForVerification(
+            Authentication authentication) {
+
+        ProfileResponse response =
+                profileService.submitMyProfileForVerification(
+                        authentication.getName()
+                );
+
+        return ResponseEntity.ok(response);
+    }
 }

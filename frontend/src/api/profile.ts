@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://vivahjodi.pages.dev/api";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 /* =========================================================
    PROFILE REQUEST
@@ -91,11 +91,45 @@ export type ProfileRequest = {
   taluka?: string;
   city?: string;
 
+    currentState?: string;
+    currentDistrict?: string;
+    currentTaluka?: string;
+    currentCity?: string;
+
   /* -------------------------------------------------------
      ABOUT
      ------------------------------------------------------- */
 
   aboutMe?: string;
+
+    /* -------------------------------------------------------
+     PARTNER PREFERENCES
+     ------------------------------------------------------- */
+
+  partnerMinAge?: number;
+  partnerMaxAge?: number;
+
+  partnerMinHeightCm?: number;
+  partnerMaxHeightCm?: number;
+
+  partnerMaritalStatus?: string;
+  partnerMotherTongue?: string;
+
+  partnerReligion?: string;
+  partnerCaste?: string;
+  partnerSubCaste?: string;
+
+  partnerZodiacSign?: string;
+  partnerNakshatra?: string;
+  partnerManglikStatus?: string;
+
+  partnerEducation?: string;
+  partnerOccupation?: string;
+
+  partnerMinIncome?: number;
+  partnerMaxIncome?: number;
+
+  partnerAbout?: string;
 
   /* -------------------------------------------------------
      PROFILE VISIBILITY
@@ -175,6 +209,11 @@ export type ProfileResponse = {
   currentCountry: string | null;
   currentAddress: string | null;
   currentPincode: string | null;
+  
+  currentState?: string;
+  currentDistrict?: string;
+  currentTaluka?: string;
+  currentCity?: string;
 
   /* -------------------------------------------------------
      NATIVE LOCATION
@@ -209,6 +248,38 @@ export type ProfileResponse = {
      ------------------------------------------------------- */
 
   aboutMe: string | null;
+
+    /* -------------------------------------------------------
+     PARTNER PREFERENCES
+     ------------------------------------------------------- */
+
+  partnerMinAge: number | null;
+  partnerMaxAge: number | null;
+
+  partnerMinHeightCm: number | null;
+  partnerMaxHeightCm: number | null;
+
+  partnerMaritalStatus: string | null;
+  partnerMotherTongue: string | null;
+
+  partnerReligion: string | null;
+  partnerCaste: string | null;
+  partnerSubCaste: string | null;
+
+  partnerZodiacSign: string | null;
+  partnerNakshatra: string | null;
+  partnerManglikStatus: string | null;
+
+  partnerEducation: string | null;
+  partnerOccupation: string | null;
+
+  partnerMinIncome: number | null;
+  partnerMaxIncome: number | null;
+
+  partnerAbout: string | null;
+
+
+
 
   /* -------------------------------------------------------
      PROFILE STATUS
@@ -329,6 +400,31 @@ export async function updateMyProfile(
     throw new Error(
       result.message ||
         "प्रोफाइल अपडेट करताना त्रुटी आली.",
+    );
+  }
+
+  return result;
+}
+
+export async function submitMyProfileForVerification(
+  token: string,
+): Promise<ProfileResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/profiles/me/submit`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+        "प्रोफाइल पडताळणीसाठी पाठवताना त्रुटी आली.",
     );
   }
 

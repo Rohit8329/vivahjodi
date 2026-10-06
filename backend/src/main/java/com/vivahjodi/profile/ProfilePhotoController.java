@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +38,31 @@ public class ProfilePhotoController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+
+    @PostMapping("/upload")
+        public ResponseEntity<ProfilePhotoResponse> uploadPhoto(
+                Authentication authentication,
+                @RequestParam("file") MultipartFile file,
+                @RequestParam(value = "primary", required = false) Boolean primary,
+                @RequestParam(value = "displayOrder", required = false) Integer displayOrder
+        ) {
+
+        ProfilePhotoResponse response =
+                profilePhotoService.uploadPhoto(
+                        authentication.getName(),
+                        file,
+                        primary,
+                        displayOrder
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+        }   
+
+
+
 
     @GetMapping
     public ResponseEntity<List<ProfilePhotoResponse>> getMyPhotos(
