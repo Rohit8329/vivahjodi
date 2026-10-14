@@ -17,6 +17,7 @@ export type FamilyRequest = {
 
   nativePlace?: string;
   familyAbout?: string;
+  familyContact?: string;
 
   numberOfBrothers?: number;
   brothersMarried?: number;
@@ -46,6 +47,7 @@ export type FamilyDetail = {
 
   nativePlace?: string | null;
   familyAbout?: string | null;
+  familyContact?: string | null;
 
   numberOfBrothers?: number | null;
   brothersMarried?: number | null;

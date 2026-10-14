@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
 
 @Service
 @Transactional
@@ -16,15 +17,18 @@ public class FamilyDetailService {
     private final FamilyDetailRepository familyDetailRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
     public FamilyDetailService(
             FamilyDetailRepository familyDetailRepository,
             ProfileRepository profileRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ProfileReviewSnapshotService profileReviewSnapshotService
     ) {
         this.familyDetailRepository = familyDetailRepository;
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.profileReviewSnapshotService = profileReviewSnapshotService;
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +48,7 @@ public class FamilyDetailService {
     ) {
 
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         FamilyDetail familyDetail =
                 familyDetailRepository
@@ -60,16 +65,21 @@ public class FamilyDetailService {
         return toResponse(saved);
     }
 
-    public void deleteMyFamily(String email) {
+
+        public void deleteMyFamily(String email) {
 
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         familyDetailRepository
                 .findByProfileId(profile.getId())
                 .ifPresent(familyDetail ->
                         familyDetailRepository.delete(familyDetail)
                 );
-    }
+        }
+
+
+
 
     private Profile getProfileForUser(String email) {
 
@@ -162,6 +172,10 @@ public class FamilyDetailService {
         familyDetail.setParentalDetails(
                 request.getParentalDetails()
         );
+
+        familyDetail.setFamilyContact(
+                request.getFamilyContact()
+        );
     }
 
     private FamilyDetailResponse toResponse(
@@ -225,6 +239,10 @@ public class FamilyDetailService {
 
         response.setFamilyAbout(
                 familyDetail.getFamilyAbout()
+        );
+
+        response.setFamilyContact(
+                familyDetail.getFamilyContact()
         );
 
         response.setNumberOfBrothers(

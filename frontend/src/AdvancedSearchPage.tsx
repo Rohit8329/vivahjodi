@@ -2,8 +2,18 @@ import { useEffect, useState } from "react";
 
 import {
   searchProfiles,
+  searchPublicProfiles,
+  type ProfileSearchRequest,
   type ProfileSearchResponse,
 } from "./api/search";
+
+
+/* remove the above import and uncomment following import to lock visitor for profile filter
+import {
+  searchProfiles,
+  type ProfileSearchResponse,
+} from "./api/search";
+*/
 
 import {
   getStates,
@@ -56,7 +66,16 @@ type AdvancedSearchForm = {
   nativeTaluka: string;
 };
 
+/*uncooment the following export and  remove the following export }) {
 export default function AdvancedSearchPage() {
+*/
+
+export default function AdvancedSearchPage({
+  canViewFullSearch,
+}: {
+  canViewFullSearch: boolean;
+}) {
+
   const [searchForm, setSearchForm] =
     useState<AdvancedSearchForm>({
       gender: "",
@@ -447,6 +466,7 @@ export default function AdvancedSearchPage() {
       "vivahjodi_token",
     );
 
+    /* uncmment this for lock visitor to filter profile
     if (!token) {
       setSearchResults([]);
       setSearchError(
@@ -454,14 +474,17 @@ export default function AdvancedSearchPage() {
       );
       setSearchMessage("");
       return;
-    }
+    } */
 
     setSearchLoading(true);
     setSearchError("");
     setSearchMessage("");
 
     try {
-      const results = await searchProfiles(token, {
+     /* uncomment the this const and remove the following cont request to lock visitors for profile filter
+     const results = await searchProfiles(token, {
+     */
+     const request: ProfileSearchRequest = {
         gender:
           searchForm.gender || undefined,
 
@@ -575,9 +598,19 @@ export default function AdvancedSearchPage() {
         nativeTaluka:
           searchForm.nativeTaluka || undefined,
 
-        page: 0,
+       /* uncomment the this const and remove the following page:0 to token & both await to lock visitors for profile filter
+          page: 0,
         size: 20,
-      });
+      }); */
+
+      page: 0,
+      size: 20,
+      };
+
+      const results =
+        token && canViewFullSearch
+          ? await searchProfiles(token, request)
+          : await searchPublicProfiles(request);
 
       setSearchResults(results);
 
@@ -2102,9 +2135,30 @@ export default function AdvancedSearchPage() {
                 {searchResults.map(
                   (profile) => (
                     <article
-                      className="search-result-card"
-                      key={profile.id}
-                    >
+                    className="search-result-card"
+                    key={profile.id}
+                  >
+                    <div className="search-result-photo-column">
+                      {profile.photoUrl && (
+                        <img
+                          src={profile.photoUrl}
+                          alt={`${profile.firstName} profile`}
+                          className="search-result-photo"
+                        />
+                      )}
+
+                      <button
+                        type="button"
+                        className="search-result-view-button"
+                        onClick={() => {
+                          window.location.href = `/profile/${profile.id}`;
+                        }}
+                      >
+                        View Details
+                      </button>
+                    </div>
+
+                    <div className="search-result-content">
                       <h3>
                         {[
                           profile.firstName,
@@ -2115,57 +2169,151 @@ export default function AdvancedSearchPage() {
                           .join(" ")}
                       </h3>
 
-                      <p>
-                        {profile.age
-                          ? `${profile.age} वर्षे`
-                          : ""}
-
-                        {profile.heightCm
-                          ? ` • ${profile.heightCm} सेमी`
-                          : ""}
-                      </p>
-
-                      {profile.education && (
+                      <div className="search-result-info-grid">
                         <p>
-                          शिक्षण:{" "}
-                          {profile.education}
+                          <strong>ID</strong>
+                          <span>
+                            {profile.profileCode || profile.id}
+                          </span>
                         </p>
-                      )}
 
-                      {profile.occupation && (
                         <p>
-                          व्यवसाय:{" "}
-                          {profile.occupation}
+                          <strong>नाव</strong>
+                          <span>
+                            {[
+                              profile.firstName,
+                              profile.middleName,
+                              profile.lastName,
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                          </span>
                         </p>
-                      )}
 
-                      {(profile.caste ||
-                        profile.subCaste) && (
                         <p>
-                          {[
-                            profile.caste,
-                            profile.subCaste,
-                          ]
-                            .filter(Boolean)
-                            .join(" • ")}
+                          <strong>लिंग</strong>
+                          <span>{profile.gender || "—"}</span>
                         </p>
-                      )}
 
-                      {(profile.currentCity ||
-                        profile.city) && (
                         <p>
-                          ठिकाण:{" "}
-                          {profile.currentCity ||
-                            profile.city}
+                          <strong>विवाह स्थिती</strong>
+                          <span>{profile.maritalStatus || "—"}</span>
                         </p>
-                      )}
 
-                      <p>
-                        ID:{" "}
-                        {profile.profileCode ||
-                          profile.id}
-                      </p>
-                    </article>
+                        <p>
+                          <strong>धर्म</strong>
+                          <span>{profile.religion || "—"}</span>
+                        </p>
+
+                        <p>
+                          <strong>समाज</strong>
+                          <span>{profile.caste || "—"}</span>
+                        </p>
+
+                        <p>
+                          <strong>पोटजात</strong>
+                          <span>{profile.subCaste || "—"}</span>
+                        </p>
+
+                        <p>
+                          <strong>वय</strong>
+                          <span>
+                            {profile.age
+                              ? `${profile.age} वर्षे`
+                              : "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>उंची</strong>
+                          <span>
+                            {profile.heightCm
+                              ? `${profile.heightCm} सेमी`
+                              : "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>शिक्षण</strong>
+                          <span>
+                            {profile.education || "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>व्यवसाय</strong>
+                          <span>
+                            {profile.occupation || "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>वार्षिक उत्पन्न</strong>
+                          <span>
+                            {profile.annualIncome !== null &&
+                            profile.annualIncome !== undefined
+                              ? `₹ ${profile.annualIncome}`
+                              : "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>सध्याचे ठिकाण</strong>
+                          <span>
+                            {[
+                              profile.currentCity || profile.city,
+                              profile.currentDistrict,
+                              profile.currentState || profile.state,
+                            ]
+                              .filter(Boolean)
+                              .join(", ") || "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>मूळ ठिकाण</strong>
+                          <span>
+                            {[
+                              profile.nativeCity,
+                              profile.nativeDistrict,
+                              profile.nativeState,
+                            ]
+                              .filter(Boolean)
+                              .join(", ") || "—"}
+                          </span>
+                        </p>
+
+                        <p>
+                          <strong>शेवटचे लॉगिन</strong>
+                          <span>
+                            {profile.lastLogin
+                              ? `${new Date(
+                                  profile.lastLogin,
+                                ).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                })} | ${new Date(
+                                  profile.lastLogin,
+                                ).toLocaleTimeString("en-IN", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                  hour12: false,
+                                })}`
+                              : "—"}
+                          </span>
+                        </p>
+
+                        <p className="search-result-about-field">
+                          <strong>माझ्याबद्दल</strong>
+                          <span>
+                            {profile.aboutMe || "माहिती उपलब्ध नाही"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </article>
                   ),
                 )}
 

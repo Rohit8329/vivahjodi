@@ -1,6 +1,8 @@
 package com.vivahjodi.search;
 
 import com.vivahjodi.profile.Profile;
+import com.vivahjodi.profile.ProfilePhotoService;
+import com.vivahjodi.profile.ProfileViewPhotoResponse;
 import com.vivahjodi.profile.education.EducationDetail;
 import com.vivahjodi.profile.education.EducationDetailRepository;
 import com.vivahjodi.profile.occupation.OccupationDetail;
@@ -17,15 +19,18 @@ public class ProfileSearchService {
     private final ProfileSearchRepository profileSearchRepository;
     private final EducationDetailRepository educationDetailRepository;
     private final OccupationDetailRepository occupationDetailRepository;
+    private final ProfilePhotoService profilePhotoService;
 
     public ProfileSearchService(
             ProfileSearchRepository profileSearchRepository,
             EducationDetailRepository educationDetailRepository,
-            OccupationDetailRepository occupationDetailRepository
+            OccupationDetailRepository occupationDetailRepository,
+            ProfilePhotoService profilePhotoService
     ) {
         this.profileSearchRepository = profileSearchRepository;
         this.educationDetailRepository = educationDetailRepository;
         this.occupationDetailRepository = occupationDetailRepository;
+        this.profilePhotoService = profilePhotoService;
     }
 
     public List<ProfileSearchResponse> search(ProfileSearchRequest request) {
@@ -37,6 +42,65 @@ public class ProfileSearchService {
                 .map(this::toResponse)
                 .toList();
     }
+
+public List<ProfileSearchResponse> getPublicProfilesByGender(
+        String gender
+) {
+
+    List<Profile> profiles =
+            profileSearchRepository.findPublicProfilesByGender(
+                    gender
+            );
+
+    return profiles.stream()
+            .map(this::toPublicResponse)
+            .toList();
+}
+
+
+
+/* remove following first public List to } if you want to lock visitor to filter */
+
+public List<ProfileSearchResponse> searchPublicProfiles(
+        ProfileSearchRequest request
+) {
+    List<Profile> profiles =
+            profileSearchRepository.searchPublic(request);
+
+    return profiles.stream()
+            .map(this::toPublicResponse)
+            .toList();
+}
+
+
+
+private ProfileSearchResponse toPublicResponse(
+        Profile profile
+) {
+
+    ProfileSearchResponse response =
+            toResponse(profile);
+
+    if (response.getFirstName() != null
+            && !response.getFirstName().isBlank()) {
+        response.setFirstName("*******");
+    }
+
+    if (response.getMiddleName() != null
+            && !response.getMiddleName().isBlank()) {
+        response.setMiddleName("*******");
+    }
+
+
+
+    return response;
+}
+
+
+
+
+
+
 
     private ProfileSearchResponse toResponse(Profile profile) {
 
@@ -115,7 +179,19 @@ public class ProfileSearchService {
 
         response.setLastLogin(
                 profile.getUser() != null ? profile.getUser().getLastLogin() : null
+
         );
+
+        List<ProfileViewPhotoResponse> photos =
+                profilePhotoService.getPhotosForProfile(
+                        profile.getId()
+                );
+
+        if (!photos.isEmpty()) {
+        response.setPhotoUrl(
+                photos.get(0).getPhotoUrl()
+        );
+        }
 
         /*
          * Education is stored in education_details,
@@ -147,7 +223,7 @@ public class ProfileSearchService {
                 occupationDetailRepository
                         .findByProfileId(profile.getId())
                         .orElse(null);
-        
+
         if (occupation != null) {
             response.setAnnualIncome(
                 occupation.getAnnualIncome()

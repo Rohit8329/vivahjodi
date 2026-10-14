@@ -1,5 +1,6 @@
 package com.vivahjodi.profile;
 
+import java.util.UUID;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,45 @@ public class ProfileController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    // =========================================================
+// GET MEMBER PROFILE FOR VIEW
+// =========================================================
+
+@GetMapping("/{profileId}/view")
+public ResponseEntity<ProfileViewResponse> getProfileView(
+        Authentication authentication,
+        @PathVariable UUID profileId) {
+
+    if (profileService.hasFullProfileAccess(
+            authentication.getName()
+    )) {
+
+        ProfileViewResponse response =
+                profileService.getProfileView(profileId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    ProfileViewResponse response =
+            profileService.getPublicProfileView(profileId);
+
+    return ResponseEntity.ok(response);
+}
+
+@GetMapping("/public/{profileId}/view")
+public ResponseEntity<ProfileViewResponse> getPublicProfileView(
+        @PathVariable UUID profileId) {
+
+    ProfileViewResponse response =
+            profileService.getPublicProfileView(profileId);
+
+    return ResponseEntity.ok(response);
+}
+
+
+
 
     @PutMapping("/me")
     public ResponseEntity<ProfileResponse> updateMyProfile(

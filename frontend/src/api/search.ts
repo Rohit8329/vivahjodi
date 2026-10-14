@@ -67,6 +67,7 @@ export type ProfileSearchRequest = {
 export type ProfileSearchResponse = {
   id: string;
   profileCode: string | null;
+  photoUrl?: string | null;
 
   firstName: string;
   middleName: string | null;
@@ -128,6 +129,46 @@ export type ProfileSearchResponse = {
 /**
  * Search ACTIVE profiles visible to the logged-in member.
  */
+
+/* remove folloeing block PUBLIC BRIDE / GROOM PROFILES
+ro lock visitors for filter*/
+
+
+/* =========================================================
+   PUBLIC PROFILE SEARCH — VISITORS / NON-MEMBERS
+   ========================================================= */
+
+export async function searchPublicProfiles(
+  data: ProfileSearchRequest,
+): Promise<ProfileSearchResponse[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/search/public/profiles`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+        "प्रोफाइल शोधताना त्रुटी आली.",
+    );
+  }
+
+  return result;
+}
+
+
+
+
+
+
 export async function searchProfiles(
   token: string,
   data: ProfileSearchRequest,
@@ -150,6 +191,34 @@ export async function searchProfiles(
     throw new Error(
       result.message ||
         "प्रोफाइल शोधताना त्रुटी आली.",
+    );
+  }
+
+  return result;
+}
+
+/* =========================================================
+   PUBLIC BRIDE / GROOM PROFILES
+   ========================================================= */
+
+export async function getPublicProfilesByGender(
+  gender: "FEMALE" | "MALE",
+): Promise<ProfileSearchResponse[]> {
+  const endpoint =
+    gender === "FEMALE"
+      ? "/search/public/brides"
+      : "/search/public/grooms";
+
+  const response = await fetch(
+    `${API_BASE_URL}${endpoint}`,
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+        "प्रोफाइल लोड करताना त्रुटी आली.",
     );
   }
 

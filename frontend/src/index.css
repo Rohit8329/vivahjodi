@@ -54,3 +54,568 @@ img {
   background: #8e2444;
   color: #ffffff;
 }
+
+/* =========================================================
+   FULL PROFILE VIEW
+   ========================================================= */
+
+.profile-view-page {
+  min-height: 100vh;
+  padding: 40px 20px 70px;
+  background: #fffaf6;
+}
+
+.profile-view-container {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(56, 20, 32, 0.08);
+}
+
+.profile-view-container h1 {
+  margin: 0 0 8px;
+  color: #801f43;
+  font-family: "Noto Serif Devanagari", serif;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.profile-view-container > p {
+  margin: 7px 0;
+  color: #5f4148;
+  font-size: 15px;
+}
+
+.profile-view-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.profile-view-photos img {
+  width: 260px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(128, 31, 67, 0.15);
+  box-shadow: 0 8px 24px rgba(56, 20, 32, 0.12);
+}
+
+.profile-view-state {
+  width: min(700px, 100%);
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 16px;
+  color: #5f4148;
+  box-shadow: 0 10px 30px rgba(56, 20, 32, 0.08);
+}
+
+.profile-view-error {
+  color: #8e2444;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .profile-view-page {
+    padding: 20px 12px 40px;
+  }
+
+  .profile-view-container {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .profile-view-container h1 {
+    font-size: 26px;
+  }
+
+  .profile-view-photos {
+    justify-content: center;
+  }
+
+  .profile-view-photos img {
+    width: min(100%, 280px);
+    height: 350px;
+  }
+}
+
+/* =========================================================
+   FULL PROFILE VIEW — JEEVANMEET STYLE LAYOUT
+   ========================================================= */
+
+.profile-view-page {
+  min-height: 100vh;
+  padding: 40px 20px 70px;
+  background: #fffaf6;
+}
+
+.profile-view-container {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(56, 20, 32, 0.08);
+}
+
+/* =========================================================
+   TOP PROFILE AREA
+   PHOTO LEFT + INFORMATION RIGHT
+   ========================================================= */
+
+.profile-view-header {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+  margin-bottom: 36px;
+}
+
+/* Photo stays in the LEFT column */
+.profile-view-photos {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+}
+
+/* Main profile photo */
+.profile-view-main-photo {
+  width: 240px;
+  height: 380px;
+  max-width: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 31, 67, 0.14);
+  box-shadow: 0 8px 24px rgba(56, 20, 32, 0.14);
+}
+
+/* Profile information stays on the RIGHT */
+.profile-view-header-info {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.profile-view-container h1 {
+  margin: 0 0 16px;
+  color: #801f43;
+  font-family: "Noto Serif Devanagari", serif;
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.profile-view-id {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: rgba(128, 31, 67, 0.08);
+  color: #801f43;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profile-view-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.profile-view-summary p {
+  margin: 0;
+  color: #4f3740;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   DETAIL SECTIONS
+   ========================================================= */
+
+.profile-view-section {
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid rgba(128, 31, 67, 0.11);
+  border-radius: 12px;
+  background: #fffdfb;
+}
+
+.profile-view-section h2 {
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(128, 31, 67, 0.14);
+  color: #801f43;
+  font-family: "Noto Serif Devanagari", serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.profile-view-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 28px;
+}
+
+.profile-view-field {
+  min-width: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(128, 31, 67, 0.07);
+}
+
+.profile-view-field strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #6f4350;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-view-field span {
+  display: block;
+  color: #2f2025;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.profile-view-field-wide {
+  grid-column: 1 / -1;
+}
+
+.profile-view-about {
+  margin: 0;
+  color: #3d2b31;
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* =========================================================
+   ADDITIONAL PHOTOS
+   ========================================================= */
+
+.profile-view-photos .profile-view-additional-photo {
+  width: 110px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+}
+
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
+
+.profile-view-state {
+  width: min(700px, 100%);
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 16px;
+  color: #5f4148;
+  box-shadow: 0 10px 30px rgba(56, 20, 32, 0.08);
+}
+
+.profile-view-error {
+  color: #8e2444;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .profile-view-page {
+    padding: 20px 12px 40px;
+  }
+
+  .profile-view-container {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .profile-view-header {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .profile-view-photos {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: center;
+  }
+
+  .profile-view-header-info {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .profile-view-main-photo {
+    width: 240px;
+    height: 360px;
+  }
+
+  .profile-view-container h1 {
+    font-size: 27px;
+  }
+
+  .profile-view-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-view-field-wide {
+    grid-column: 1;
+  }
+
+  .profile-view-section {
+    padding: 18px;
+  }
+}
+
+/* =========================================================
+   PROFILE VIEW — BACK TO HOME
+   ========================================================= */
+
+.profile-view-bottom-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.profile-view-bottom-action button {
+  border: none;
+  padding: 11px 20px;
+  border-radius: 7px;
+  background: #801f43;
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.profile-view-bottom-action button:hover {
+  background: #681735;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   SEARCH RESULT CARDS
+   ========================================================= */
+
+.search-result-card {
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.search-result-photo {
+  width: 140px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .search-result-card {
+    grid-template-columns: 1fr;
+  }
+
+  .search-result-photo {
+    width: 120px;
+    height: 155px;
+  }
+}
+
+/* =========================================================
+   SEARCH RESULT — JEEVANMEET STYLE
+   ========================================================= */
+
+.search-result-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  margin-top: 14px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(128, 31, 67, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(56, 20, 32, 0.06);
+}
+
+.search-result-photo-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.search-result-photo {
+  width: 220px;
+  height: 235px;
+  object-fit: cover;
+  border-radius: 5px 5px 0 0;
+  display: block;
+}
+
+.search-result-view-button {
+  width: 220px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 0 0 5px 5px;
+  background: #2fadd0;
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.search-result-view-button:hover {
+  background: #2397b8;
+  transform: translateY(-1px);
+}
+
+.search-result-content {
+  min-width: 0;
+}
+
+.search-result-content h3 {
+  margin: 4px 0 18px;
+  color: #801f43;
+  font-family: "Noto Serif Devanagari", serif;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.search-result-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
+}
+
+.search-result-info-grid p {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(128, 31, 67, 0.07);
+  line-height: 1.5;
+}
+
+.search-result-info-grid p strong {
+  color: #4b3038;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.search-result-info-grid p span {
+  color: #3b1f24;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.search-result-about-field {
+  grid-column: 1 / -1;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .search-result-card {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .search-result-photo-column {
+    align-items: center;
+  }
+
+  .search-result-photo,
+  .search-result-view-button {
+    width: min(220px, 100%);
+  }
+
+  .search-result-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-result-about-field {
+    grid-column: 1;
+  }
+}
+
+/* =========================================================
+   PUBLIC PROFILE — LOGIN BUTTON
+   ========================================================= */
+
+.profile-view-main-photo {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.profile-view-main-photo img {
+  width: 240px;
+  height: 380px;
+  max-width: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px 8px 0 0;
+}
+
+.public-profile-login-button {
+  width: 240px;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid rgba(128, 31, 67, 0.18);
+  border-radius: 0 0 8px 8px;
+  background: #2fadd0;
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  display: block;
+}
+
+.public-profile-login-button:hover {
+  background: #2397b8;
+}
+
+@media (max-width: 760px) {
+  .profile-view-main-photo img,
+  .public-profile-login-button {
+    width: 240px;
+    max-width: 100%;
+  }
+}

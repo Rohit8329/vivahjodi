@@ -5,6 +5,7 @@ import com.vivahjodi.profile.ProfileRepository;
 import com.vivahjodi.user.User;
 import com.vivahjodi.user.UserRepository;
 import org.springframework.stereotype.Service;
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -16,15 +17,18 @@ public class EducationService {
     private final EducationDetailRepository educationDetailRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
     public EducationService(
             EducationDetailRepository educationDetailRepository,
             ProfileRepository profileRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ProfileReviewSnapshotService profileReviewSnapshotService) {
 
         this.educationDetailRepository = educationDetailRepository;
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.profileReviewSnapshotService = profileReviewSnapshotService;
     }
 
     public EducationDetailResponse addEducation(
@@ -32,6 +36,7 @@ public class EducationService {
             EducationDetailRequest request) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         /*
          * A profile has one main education section.
@@ -115,8 +120,10 @@ public class EducationService {
         if (!education.getProfile().getId().equals(profile.getId())) {
             throw new IllegalArgumentException(
                     "You are not allowed to modify this education record"
+
             );
         }
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         education.setEducationLevel(
                 normalizeOptional(request.getEducationLevel())

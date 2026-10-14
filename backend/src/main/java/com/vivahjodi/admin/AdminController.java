@@ -10,15 +10,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.vivahjodi.profile.review.ProfileFieldChange;
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
     private final ProfileService profileService;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
-    public AdminController(ProfileService profileService) {
-        this.profileService = profileService;
-    }
+    public AdminController(
+        ProfileService profileService,
+        ProfileReviewSnapshotService profileReviewSnapshotService) {
+
+    this.profileService = profileService;
+    this.profileReviewSnapshotService = profileReviewSnapshotService;
+}
+
+
 
     // =========================================================
     // ADMIN DASHBOARD TEST
@@ -44,6 +54,17 @@ public class AdminController {
     public List<ProfileResponse> getPendingProfiles() {
 
         return profileService.getPendingProfilesForAdmin();
+    }
+
+    // =========================================================
+    // GET PROFILE CHANGES FOR ADMIN REVIEW
+    // =========================================================
+
+    @GetMapping("/profiles/{profileId}/changes")
+    public List<ProfileFieldChange> getProfileChanges(
+            @PathVariable UUID profileId) {
+
+        return profileReviewSnapshotService.getChanges(profileId);
     }
 
     // =========================================================

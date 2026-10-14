@@ -91,10 +91,10 @@ export type ProfileRequest = {
   taluka?: string;
   city?: string;
 
-    currentState?: string;
-    currentDistrict?: string;
-    currentTaluka?: string;
-    currentCity?: string;
+  currentState?: string;
+  currentDistrict?: string;
+  currentTaluka?: string;
+  currentCity?: string;
 
   /* -------------------------------------------------------
      ABOUT
@@ -102,7 +102,7 @@ export type ProfileRequest = {
 
   aboutMe?: string;
 
-    /* -------------------------------------------------------
+  /* -------------------------------------------------------
      PARTNER PREFERENCES
      ------------------------------------------------------- */
 
@@ -141,6 +141,81 @@ export type ProfileRequest = {
 /* =========================================================
    PROFILE RESPONSE
    ========================================================= */
+
+export type ProfileViewResponse = {
+  profile: ProfileResponse & {
+
+        family?: {
+      fatherName: string | null;
+      fatherOccupation: string | null;
+      motherName: string | null;
+      motherOccupation: string | null;
+
+      familyType: string | null;
+      familyValues: string | null;
+      familyStatus: string | null;
+
+      siblingsCount: number | null;
+      brothersCount: number | null;
+      sistersCount: number | null;
+
+      nativePlace: string | null;
+      familyAbout: string | null;
+      familyContact: string | null;
+
+      numberOfBrothers: number | null;
+      brothersMarried: number | null;
+
+      numberOfSisters: number | null;
+      sistersMarried: number | null;
+
+      parentalDetails: string | null;
+    } | null;
+
+
+
+    education?: {
+      id: string;
+      educationLevel: string | null;
+      educationStream: string | null;
+      qualification: string | null;
+      specialization: string | null;
+      instituteName: string | null;
+      passingYear: number | null;
+      createdAt: string | null;
+      updatedAt: string | null;
+    } | null;
+
+    occupation?: {
+      id: string;
+      occupation: string | null;
+      designation: string | null;
+      companyName: string | null;
+      employmentType: string | null;
+      workCity: string | null;
+      workState: string | null;
+      annualIncomeInr: number | null;
+      businessDetails: string | null;
+      subOccupation: string | null;
+      employedIn: string | null;
+      workLocation: string | null;
+      annualIncome: string | null;
+      incomeCurrency: string | null;
+      createdAt: string | null;
+      updatedAt: string | null;
+    } | null;
+  };
+
+  photos: Array<{
+    id: string;
+    originalFileName: string;
+    mimeType: string;
+    primary: boolean;
+    displayOrder: number;
+    photoUrl: string | null;
+    createdAt: string | null;
+  }>;
+};
 
 export type ProfileResponse = {
   id: string;
@@ -209,7 +284,7 @@ export type ProfileResponse = {
   currentCountry: string | null;
   currentAddress: string | null;
   currentPincode: string | null;
-  
+
   currentState?: string;
   currentDistrict?: string;
   currentTaluka?: string;
@@ -249,7 +324,7 @@ export type ProfileResponse = {
 
   aboutMe: string | null;
 
-    /* -------------------------------------------------------
+  /* -------------------------------------------------------
      PARTNER PREFERENCES
      ------------------------------------------------------- */
 
@@ -278,9 +353,6 @@ export type ProfileResponse = {
 
   partnerAbout: string | null;
 
-
-
-
   /* -------------------------------------------------------
      PROFILE STATUS
      ------------------------------------------------------- */
@@ -288,6 +360,8 @@ export type ProfileResponse = {
   profileStatus: string;
 
   visibility: string;
+
+  photoUrl?: string | null;
 
   submittedAt: string | null;
   verifiedAt: string | null;
@@ -429,4 +503,50 @@ export async function submitMyProfileForVerification(
   }
 
   return result;
+}
+
+export async function getProfileView(
+  token: string,
+  profileId: string,
+): Promise<ProfileViewResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/profiles/${profileId}/view`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Profile view failed: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+/* =========================================================
+   GET PUBLIC PROFILE VIEW
+   ========================================================= */
+
+export async function getPublicProfileView(
+  profileId: string,
+): Promise<ProfileViewResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/profiles/public/${profileId}/view`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Public profile view failed: ${response.status}`,
+    );
+  }
+
+  return response.json();
 }

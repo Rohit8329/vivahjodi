@@ -11,6 +11,12 @@ public interface ProfilePhotoRepository
 
     List<ProfilePhoto> findByProfileIdOrderByDisplayOrderAsc(UUID profileId);
 
+    List<ProfilePhoto> findByProfileIdAndStatusOrderByDisplayOrderAsc(
+        UUID profileId,
+        String status
+);
+
+
     Optional<ProfilePhoto> findByIdAndProfileId(
             UUID id,
             UUID profileId

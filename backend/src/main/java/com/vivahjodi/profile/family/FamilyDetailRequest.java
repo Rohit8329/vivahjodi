@@ -64,6 +64,9 @@ public class FamilyDetailRequest {
     @Size(max = 5000)
     private String parentalDetails;
 
+    @Size(max = 32)
+    private String familyContact;
+
     public String getFatherName() {
         return fatherName;
     }
@@ -158,6 +161,14 @@ public class FamilyDetailRequest {
 
     public void setFamilyAbout(String familyAbout) {
         this.familyAbout = familyAbout;
+    }
+
+    public String getFamilyContact() {
+        return familyContact;
+    }
+
+    public void setFamilyContact(String familyContact) {
+        this.familyContact = familyContact;
     }
 
     public Integer getNumberOfBrothers() {

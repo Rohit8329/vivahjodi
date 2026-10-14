@@ -80,6 +80,9 @@ public class FamilyDetail {
     @Column(name = "parental_details", columnDefinition = "TEXT")
     private String parentalDetails;
 
+    @Column(name = "family_contact", length = 32)
+    private String familyContact;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -245,6 +248,16 @@ public class FamilyDetail {
     public void setParentalDetails(String parentalDetails) {
         this.parentalDetails = parentalDetails;
     }
+
+    public String getFamilyContact() {
+        return familyContact;
+    }
+
+    public void setFamilyContact(String familyContact) {
+        this.familyContact = familyContact;
+    }
+
+
 
     public Instant getCreatedAt() {
         return createdAt;

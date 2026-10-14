@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.time.OffsetDateTime;
 import java.math.BigDecimal;
 
+
 public class ProfileSearchResponse {
 
     private UUID id;
@@ -70,6 +71,8 @@ public class ProfileSearchResponse {
 
     private String visibility;
 
+    private String photoUrl;
+
     private OffsetDateTime lastLogin;
 
     private BigDecimal annualIncome;
@@ -77,9 +80,9 @@ public class ProfileSearchResponse {
     private String currentState;
 
     private String currentDistrict;
-    
+
     private String currentTaluka;
-    
+
     private String currentCity;
 
     private String nativeState;
@@ -248,6 +251,14 @@ public class ProfileSearchResponse {
 
     public void setLivingCountry(String livingCountry) {
         this.livingCountry = livingCountry;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public OffsetDateTime getLastLogin() {

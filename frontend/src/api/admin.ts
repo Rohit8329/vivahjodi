@@ -57,6 +57,7 @@ export type AdminProfile = {
 
     nativePlace: string | null;
     familyAbout: string | null;
+    familyContact: string | null;
 
     numberOfBrothers: number | null;
     brothersMarried: number | null;
@@ -99,6 +100,13 @@ export type AdminProfile = {
   rejectionReason?: string | null;
 
   visibility?: string | null;
+};
+
+export type ProfileFieldChange = {
+  section: string;
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
 };
 
 export async function getPendingAdminProfiles(
@@ -177,6 +185,32 @@ export async function rejectAdminProfile(
     throw new Error(
       result.message ||
         "प्रोफाइल नाकारताना त्रुटी आली.",
+    );
+  }
+
+  return result;
+}
+
+export async function getAdminProfileChanges(
+  token: string,
+  profileId: string,
+): Promise<ProfileFieldChange[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/admin/profiles/${profileId}/changes`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+        "प्रोफाइलमधील बदल मिळवताना त्रुटी आली.",
     );
   }
 

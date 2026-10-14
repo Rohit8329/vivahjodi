@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
+
 import java.math.BigDecimal;
 
 @Service
@@ -17,15 +19,18 @@ public class OccupationDetailService {
     private final OccupationDetailRepository occupationDetailRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
     public OccupationDetailService(
             OccupationDetailRepository occupationDetailRepository,
             ProfileRepository profileRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ProfileReviewSnapshotService profileReviewSnapshotService) {
 
         this.occupationDetailRepository = occupationDetailRepository;
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.profileReviewSnapshotService = profileReviewSnapshotService;
     }
 
     public OccupationDetailResponse createOrUpdateOccupation(
@@ -33,6 +38,7 @@ public class OccupationDetailService {
             OccupationDetailRequest request) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         OccupationDetail occupation =
                 occupationDetailRepository
@@ -72,6 +78,7 @@ public class OccupationDetailService {
             String email) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         occupationDetailRepository
                 .findByProfileId(profile.getId())

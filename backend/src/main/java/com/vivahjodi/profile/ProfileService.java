@@ -3,10 +3,12 @@ package com.vivahjodi.profile;
 import com.vivahjodi.user.User;
 import com.vivahjodi.user.UserRepository;
 import com.vivahjodi.payment.PaymentRepository;
+import com.vivahjodi.membership.MembershipRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 import com.vivahjodi.profile.education.EducationDetail;
 import com.vivahjodi.profile.education.EducationDetailRepository;
 import com.vivahjodi.profile.education.EducationDetailResponse;
@@ -16,6 +18,8 @@ import com.vivahjodi.profile.family.FamilyDetailResponse;
 import com.vivahjodi.profile.occupation.OccupationDetail;
 import com.vivahjodi.profile.occupation.OccupationDetailRepository;
 import com.vivahjodi.profile.occupation.OccupationDetailResponse;
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProfileService {
@@ -26,6 +30,9 @@ private final PaymentRepository paymentRepository;
 private final EducationDetailRepository educationDetailRepository;
 private final FamilyDetailRepository familyDetailRepository;
 private final OccupationDetailRepository occupationDetailRepository;
+private final ProfilePhotoService profilePhotoService;
+private final MembershipRepository membershipRepository;
+private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
 
 public ProfileService(
@@ -34,7 +41,10 @@ public ProfileService(
         PaymentRepository paymentRepository,
         EducationDetailRepository educationDetailRepository,
         FamilyDetailRepository familyDetailRepository,
-        OccupationDetailRepository occupationDetailRepository) {
+        OccupationDetailRepository occupationDetailRepository,
+        ProfilePhotoService profilePhotoService,
+        MembershipRepository membershipRepository,
+        ProfileReviewSnapshotService profileReviewSnapshotService) {
 
     this.profileRepository = profileRepository;
     this.userRepository = userRepository;
@@ -42,6 +52,9 @@ public ProfileService(
     this.educationDetailRepository = educationDetailRepository;
     this.familyDetailRepository = familyDetailRepository;
     this.occupationDetailRepository = occupationDetailRepository;
+    this.profilePhotoService = profilePhotoService;
+    this.membershipRepository = membershipRepository;
+    this.profileReviewSnapshotService = profileReviewSnapshotService;
 }
 
     // =========================================================
@@ -193,7 +206,7 @@ public ProfileService(
                 normalizeOptional(request.getCurrentTaluka()));
 
         profile.setCurrentCity(
-                normalizeOptional(request.getCurrentCity()));        
+                normalizeOptional(request.getCurrentCity()));
 
 
         // =====================================================
@@ -364,6 +377,558 @@ profile.setPartnerAbout(
     }
 
 
+
+
+
+    // =========================================================
+// GET MEMBER PROFILE FOR VIEW
+// =========================================================
+
+public ProfileResponse getProfileForView(UUID profileId) {
+
+    Profile profile =
+            profileRepository.findById(profileId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Profile not found"));
+
+    if (!"ACTIVE".equalsIgnoreCase(profile.getProfileStatus())) {
+        throw new IllegalArgumentException(
+                "Profile is not available for viewing");
+    }
+
+    if (profile.getVisibility() == null
+            || (
+                !"PUBLIC".equalsIgnoreCase(profile.getVisibility())
+                && !"MEMBERS_ONLY".equalsIgnoreCase(profile.getVisibility())
+            )) {
+        throw new IllegalArgumentException(
+                "Profile is not available for viewing");
+    }
+
+    return toResponse(profile);
+}
+
+
+public ProfileViewResponse getProfileView(UUID profileId) {
+
+    ProfileResponse profile =
+            getProfileForView(profileId);
+
+    ProfileViewResponse response =
+            new ProfileViewResponse();
+
+    response.setProfile(
+            toProfileViewProfileResponse(profile)
+    );
+
+    response.setPhotos(
+            profilePhotoService.getPhotosForProfile(profileId)
+    );
+
+    return response;
+}
+
+
+public ProfileViewResponse getPublicProfileView(UUID profileId) {
+
+    ProfileResponse profile =
+            getProfileForView(profileId);
+
+    if (!"PUBLIC".equalsIgnoreCase(profile.getVisibility())) {
+        throw new IllegalArgumentException(
+                "Profile is not available for public viewing"
+        );
+    }
+
+    ProfileViewResponse response =
+            new ProfileViewResponse();
+
+    response.setProfile(
+            toProfileViewProfileResponse(profile)
+    );
+
+    response.setPhotos(
+            profilePhotoService.getPhotosForProfile(profileId)
+    );
+
+    maskPublicProfile(response.getProfile());
+
+    return response;
+}
+
+
+public boolean hasFullProfileAccess(String email) {
+
+    User user =
+            userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Authenticated user not found"
+                    ));
+
+    if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+        return true;
+    }
+
+    return membershipRepository
+            .findTopByUserIdOrderByCreatedAtDesc(user.getId())
+            .map(membership ->
+                    "ACTIVE".equalsIgnoreCase(
+                            membership.getMembershipStatus()
+                    )
+            )
+            .orElse(false);
+}
+
+
+
+
+private void maskPublicProfile(
+        ProfileViewProfileResponse profile) {
+
+    if (profile == null) {
+        return;
+    }
+
+    // =========================================================
+    // NAME
+    // Keep surname visible, mask first/middle name.
+    // Example: ******* Kanse
+    // =========================================================
+
+    if (profile.getFirstName() != null
+            && !profile.getFirstName().isBlank()) {
+        profile.setFirstName("*******");
+    }
+
+    if (profile.getMiddleName() != null
+            && !profile.getMiddleName().isBlank()) {
+        profile.setMiddleName("*******");
+    }
+
+    // =========================================================
+    // CURRENT LOCATION
+    // Keep country/state/district/taluka/city visible.
+    // Mask exact address and pincode.
+    // =========================================================
+
+    if (profile.getCurrentAddress() != null
+            && !profile.getCurrentAddress().isBlank()) {
+        profile.setCurrentAddress("********");
+    }
+
+    if (profile.getCurrentPincode() != null
+            && !profile.getCurrentPincode().isBlank()) {
+        profile.setCurrentPincode("********");
+    }
+
+    // =========================================================
+    // NATIVE PLACE
+    // Keep structured location visible.
+    // Mask exact native place.
+    // =========================================================
+
+    if (profile.getNativePlace() != null
+            && !profile.getNativePlace().isBlank()) {
+        profile.setNativePlace("********");
+    }
+
+    // =========================================================
+    // NRI
+    // =========================================================
+
+    if (profile.getNriAddress() != null
+            && !profile.getNriAddress().isBlank()) {
+        profile.setNriAddress("********");
+    }
+
+    // =========================================================
+    // FAMILY
+    // =========================================================
+
+    ProfileViewFamilyResponse family =
+            profile.getFamily();
+
+    if (family != null) {
+
+        if (family.getFatherName() != null
+                && !family.getFatherName().isBlank()) {
+            family.setFatherName("********");
+        }
+
+        if (family.getMotherName() != null
+                && !family.getMotherName().isBlank()) {
+            family.setMotherName("********");
+        }
+
+        if (family.getNativePlace() != null
+                && !family.getNativePlace().isBlank()) {
+            family.setNativePlace("********");
+        }
+
+        if (family.getFamilyContact() != null
+                && !family.getFamilyContact().isBlank()) {
+        family.setFamilyContact("********");
+        }
+    }
+
+    // =========================================================
+    // OCCUPATION
+    // =========================================================
+
+    ProfileViewOccupationResponse occupation =
+            profile.getOccupation();
+
+    if (occupation != null) {
+
+        if (occupation.getEmployedIn() != null
+                && !occupation.getEmployedIn().isBlank()) {
+            occupation.setEmployedIn("********");
+        }
+    }
+}
+
+
+
+
+
+
+
+
+private ProfileViewProfileResponse toProfileViewProfileResponse(
+        ProfileResponse source) {
+
+    ProfileViewProfileResponse target =
+            new ProfileViewProfileResponse();
+
+    target.setProfileCode(source.getProfileCode());
+    target.setFirstName(source.getFirstName());
+    target.setMiddleName(source.getMiddleName());
+    target.setLastName(source.getLastName());
+    target.setGender(source.getGender());
+    target.setDateOfBirth(source.getDateOfBirth());
+    target.setTimeOfBirth(source.getTimeOfBirth());
+    target.setBirthPlace(source.getBirthPlace());
+
+    target.setHeightCm(source.getHeightCm());
+    target.setWeightKg(source.getWeightKg());
+    target.setBloodGroup(source.getBloodGroup());
+    target.setBodyType(source.getBodyType());
+    target.setComplexion(source.getComplexion());
+
+    target.setMaritalStatus(source.getMaritalStatus());
+    target.setMotherTongue(source.getMotherTongue());
+    target.setNumberOfChildren(source.getNumberOfChildren());
+
+    target.setEatingHabits(source.getEatingHabits());
+    target.setDrinkingHabits(source.getDrinkingHabits());
+    target.setSmokingHabits(source.getSmokingHabits());
+
+    target.setPhysicalDisability(
+            Boolean.TRUE.equals(source.getPhysicalDisability())
+    );
+    target.setDisabilityDetails(
+            source.getDisabilityDetails()
+    );
+
+    target.setReligion(source.getReligion());
+    target.setCaste(source.getCaste());
+    target.setSubCaste(source.getSubCaste());
+    target.setGotra(source.getGotra());
+    target.setZodiacSign(source.getZodiacSign());
+    target.setNakshatra(source.getNakshatra());
+    target.setManglikStatus(source.getManglikStatus());
+
+target.setFamily(
+        toProfileViewFamilyResponse(
+                source.getFamily()
+        )
+);
+
+target.setEducation(
+        toProfileViewEducationResponse(
+                source.getEducation()
+        )
+);
+
+target.setOccupation(
+        toProfileViewOccupationResponse(
+                source.getOccupation()
+        )
+);
+    target.setCurrentCountry(source.getCurrentCountry());
+    target.setCurrentAddress(source.getCurrentAddress());
+    target.setCurrentPincode(source.getCurrentPincode());
+    target.setCurrentState(source.getCurrentState());
+    target.setCurrentDistrict(source.getCurrentDistrict());
+    target.setCurrentTaluka(source.getCurrentTaluka());
+    target.setCurrentCity(source.getCurrentCity());
+
+    target.setNativeCountry(source.getNativeCountry());
+    target.setNativePlace(source.getNativePlace());
+    target.setNativeState(source.getNativeState());
+    target.setNativeDistrict(source.getNativeDistrict());
+    target.setNativeTaluka(source.getNativeTaluka());
+    target.setNativeCity(source.getNativeCity());
+
+    target.setNri(
+            Boolean.TRUE.equals(source.getNri())
+    );
+    target.setLivingCountry(source.getLivingCountry());
+    target.setNriAddress(source.getNriAddress());
+
+    target.setAboutMe(source.getAboutMe());
+
+    target.setPartnerMinAge(source.getPartnerMinAge());
+    target.setPartnerMaxAge(source.getPartnerMaxAge());
+    target.setPartnerMinHeightCm(
+            source.getPartnerMinHeightCm()
+    );
+    target.setPartnerMaxHeightCm(
+            source.getPartnerMaxHeightCm()
+    );
+
+    target.setPartnerMotherTongue(
+            source.getPartnerMotherTongue()
+    );
+    target.setPartnerMaritalStatus(
+            source.getPartnerMaritalStatus()
+    );
+    target.setPartnerReligion(
+            source.getPartnerReligion()
+    );
+    target.setPartnerCaste(
+            source.getPartnerCaste()
+    );
+    target.setPartnerSubCaste(
+            source.getPartnerSubCaste()
+    );
+    target.setPartnerManglikStatus(
+            source.getPartnerManglikStatus()
+    );
+    target.setPartnerNakshatra(
+            source.getPartnerNakshatra()
+    );
+    target.setPartnerZodiacSign(
+            source.getPartnerZodiacSign()
+    );
+    target.setPartnerEducation(
+            source.getPartnerEducation()
+    );
+    target.setPartnerOccupation(
+            source.getPartnerOccupation()
+    );
+target.setPartnerMinIncome(
+        source.getPartnerMinIncome() == null
+                ? null
+                : BigDecimal.valueOf(
+                        source.getPartnerMinIncome()
+                )
+);
+
+target.setPartnerMaxIncome(
+        source.getPartnerMaxIncome() == null
+                ? null
+                : BigDecimal.valueOf(
+                        source.getPartnerMaxIncome()
+                )
+);
+    target.setPartnerAbout(
+            source.getPartnerAbout()
+    );
+
+    return target;
+}
+
+    private ProfileViewEducationResponse toProfileViewEducationResponse(
+            EducationDetailResponse source) {
+
+        if (source == null) {
+            return null;
+        }
+
+        ProfileViewEducationResponse target =
+                new ProfileViewEducationResponse();
+
+        target.setEducationLevel(
+                source.getEducationLevel()
+        );
+
+        target.setEducationStream(
+                source.getEducationStream()
+        );
+
+        target.setQualification(
+                source.getQualification()
+        );
+
+        target.setSpecialization(
+                source.getSpecialization()
+        );
+
+        target.setInstituteName(
+                source.getInstituteName()
+        );
+
+        target.setPassingYear(
+                source.getPassingYear()
+        );
+
+        return target;
+    }
+
+
+    private ProfileViewFamilyResponse toProfileViewFamilyResponse(
+            FamilyDetailResponse source) {
+
+        if (source == null) {
+            return null;
+        }
+
+        ProfileViewFamilyResponse target =
+                new ProfileViewFamilyResponse();
+
+        target.setFatherName(
+                source.getFatherName()
+        );
+
+        target.setFatherOccupation(
+                source.getFatherOccupation()
+        );
+
+        target.setMotherName(
+                source.getMotherName()
+        );
+
+        target.setMotherOccupation(
+                source.getMotherOccupation()
+        );
+
+        target.setFamilyType(
+                source.getFamilyType()
+        );
+
+        target.setFamilyValues(
+                source.getFamilyValues()
+        );
+
+        target.setFamilyStatus(
+                source.getFamilyStatus()
+        );
+
+        target.setSiblingsCount(
+                source.getSiblingsCount()
+        );
+
+        target.setBrothersCount(
+                source.getBrothersCount()
+        );
+
+        target.setSistersCount(
+                source.getSistersCount()
+        );
+
+        target.setNativePlace(
+                source.getNativePlace()
+        );
+
+        target.setFamilyAbout(
+                source.getFamilyAbout()
+        );
+
+        target.setFamilyContact(
+                source.getFamilyContact()
+        );
+
+        target.setNumberOfBrothers(
+                source.getNumberOfBrothers()
+        );
+
+        target.setBrothersMarried(
+                source.getBrothersMarried()
+        );
+
+        target.setNumberOfSisters(
+                source.getNumberOfSisters()
+        );
+
+        target.setSistersMarried(
+                source.getSistersMarried()
+        );
+
+        target.setParentalDetails(
+                source.getParentalDetails()
+        );
+
+        return target;
+    }
+
+
+    private ProfileViewOccupationResponse toProfileViewOccupationResponse(
+            OccupationDetailResponse source) {
+
+        if (source == null) {
+            return null;
+        }
+
+        ProfileViewOccupationResponse target =
+                new ProfileViewOccupationResponse();
+
+        target.setOccupation(
+                source.getOccupation()
+        );
+
+        target.setDesignation(
+                source.getDesignation()
+        );
+
+        target.setCompanyName(
+                source.getCompanyName()
+        );
+
+        target.setEmploymentType(
+                source.getEmploymentType()
+        );
+
+        target.setWorkCity(
+                source.getWorkCity()
+        );
+
+        target.setWorkState(
+                source.getWorkState()
+        );
+
+        target.setAnnualIncomeInr(
+                source.getAnnualIncomeInr()
+        );
+
+        target.setBusinessDetails(
+                source.getBusinessDetails()
+        );
+
+        target.setSubOccupation(
+                source.getSubOccupation()
+        );
+
+        target.setEmployedIn(
+                source.getEmployedIn()
+        );
+
+        target.setWorkLocation(
+                source.getWorkLocation()
+        );
+
+        target.setAnnualIncome(
+                source.getAnnualIncome()
+        );
+
+        target.setIncomeCurrency(
+                source.getIncomeCurrency()
+        );
+
+        return target;
+    }
+
+
     // =========================================================
     // UPDATE MY PROFILE
     // =========================================================
@@ -381,6 +946,8 @@ profile.setPartnerAbout(
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Profile not found for this account"));
 
+        // Preserve the original profile before any fields are changed.
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         // =====================================================
         // BASIC INFORMATION
@@ -631,7 +1198,7 @@ profile.setPartnerMaxIncome(request.getPartnerMaxIncome());
 
 profile.setPartnerAbout(
         normalizeOptional(request.getPartnerAbout())
-);        
+);
 
 
         // =====================================================
@@ -686,6 +1253,9 @@ profile.setPartnerAbout(
                 );
                 }
 
+                // Capture the current version for the admin's change review.
+                profileReviewSnapshotService.captureProposedVersion(profile);
+
         OffsetDateTime now =
                 OffsetDateTime.now();
 
@@ -735,6 +1305,7 @@ public List<ProfileResponse> getPendingProfilesForAdmin() {
 // ADMIN APPROVE PROFILE
 // =========================================================
 
+@Transactional
 public ProfileResponse approveProfileForAdmin(UUID profileId) {
 
     Profile profile =
@@ -795,10 +1366,14 @@ userRepository.save(user);
 Profile approvedProfile =
         profileRepository.save(profile);
 
+// Prepare the snapshot for the next review cycle.
+profileReviewSnapshotService.finishReviewCycle(approvedProfile);
+
 return toResponse(approvedProfile);
 }
 
 
+@Transactional
 public ProfileResponse rejectProfileForAdmin(
         UUID profileId,
         String reason
@@ -835,9 +1410,12 @@ public ProfileResponse rejectProfileForAdmin(
     profile.setUpdatedAt(now);
 
     Profile rejectedProfile =
-            profileRepository.save(profile);
+        profileRepository.save(profile);
 
-    return toResponse(rejectedProfile);
+// Prepare the snapshot for the next review cycle.
+profileReviewSnapshotService.finishReviewCycle(rejectedProfile);
+
+return toResponse(rejectedProfile);
 }
 
 
@@ -927,6 +1505,7 @@ if (family != null) {
 
     familyResponse.setNativePlace(family.getNativePlace());
     familyResponse.setFamilyAbout(family.getFamilyAbout());
+    familyResponse.setFamilyContact(family.getFamilyContact());
 
     familyResponse.setNumberOfBrothers(family.getNumberOfBrothers());
     familyResponse.setBrothersMarried(family.getBrothersMarried());
@@ -1147,7 +1726,7 @@ if (family != null) {
                 profile.getCurrentTaluka());
 
         response.setCurrentCity(
-                profile.getCurrentCity());        
+                profile.getCurrentCity());
 
 
         // =====================================================
@@ -1250,7 +1829,7 @@ if (family != null) {
         response.setPartnerMaxIncome(profile.getPartnerMaxIncome());
 
         response.setPartnerAbout(profile.getPartnerAbout());
-       
+
 
         response.setProfileStatus(
                 profile.getProfileStatus());

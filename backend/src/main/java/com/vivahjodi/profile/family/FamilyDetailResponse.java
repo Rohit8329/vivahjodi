@@ -33,6 +33,8 @@ public class FamilyDetailResponse {
 
     private String parentalDetails;
 
+    private String familyContact;
+
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -186,6 +188,14 @@ public class FamilyDetailResponse {
 
     public void setParentalDetails(String parentalDetails) {
         this.parentalDetails = parentalDetails;
+    }
+
+    public String getFamilyContact() {
+        return familyContact;
+    }
+
+    public void setFamilyContact(String familyContact) {
+        this.familyContact = familyContact;
     }
 
     public Instant getCreatedAt() {

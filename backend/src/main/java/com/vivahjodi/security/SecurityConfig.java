@@ -55,11 +55,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+        /*remove following "/api/search/public/profiles" for
+        lock visitor to filter */
+
                         .requestMatchers(
                                 "/api/health",
                                 "/api/auth/register",
                                 "/api/auth/login",
-                                "/api/master/**"
+                                "/api/master/**",
+                                "/api/search/public/brides",
+                                "/api/search/public/grooms",
+                                "/api/profiles/public/**",
+                                "/api/search/public/profiles"
                         ).permitAll()
 
                         .requestMatchers("/api/admin/**")

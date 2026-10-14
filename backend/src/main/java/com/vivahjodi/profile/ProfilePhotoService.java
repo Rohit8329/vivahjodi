@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -18,17 +20,20 @@ public class ProfilePhotoService {
     private final ProfilePhotoRepository profilePhotoRepository;
     private final UserRepository userRepository;
     private final SupabaseStorageService supabaseStorageService;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
     public ProfilePhotoService(
             ProfileRepository profileRepository,
             ProfilePhotoRepository profilePhotoRepository,
             UserRepository userRepository,
-            SupabaseStorageService supabaseStorageService
+            SupabaseStorageService supabaseStorageService,
+            ProfileReviewSnapshotService profileReviewSnapshotService
     ) {
         this.profileRepository = profileRepository;
         this.profilePhotoRepository = profilePhotoRepository;
         this.userRepository = userRepository;
         this.supabaseStorageService = supabaseStorageService;
+        this.profileReviewSnapshotService = profileReviewSnapshotService;
     }
 
     /**
@@ -43,6 +48,7 @@ public class ProfilePhotoService {
             Integer displayOrder
     ) {
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         long photoCount =
                 profilePhotoRepository.countByProfileId(
@@ -126,6 +132,7 @@ public class ProfilePhotoService {
             ProfilePhotoRequest request
     ) {
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         long photoCount =
                 profilePhotoRepository.countByProfileId(
@@ -197,6 +204,19 @@ public class ProfilePhotoService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+        public List<ProfileViewPhotoResponse> getPhotosForProfile(UUID profileId) {
+
+        return profilePhotoRepository
+                .findByProfileIdAndStatusOrderByDisplayOrderAsc(
+                        profileId,
+                        "ACTIVE"
+                )
+                .stream()
+                .map(this::toViewResponse)
+                .toList();
+        }
+
     /**
      * Update photo metadata.
      */
@@ -207,6 +227,7 @@ public class ProfilePhotoService {
             ProfilePhotoRequest request
     ) {
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         ProfilePhoto photo =
                 profilePhotoRepository
@@ -267,6 +288,7 @@ public class ProfilePhotoService {
             UUID photoId
     ) {
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         ProfilePhoto photo =
                 profilePhotoRepository
@@ -290,7 +312,7 @@ public class ProfilePhotoService {
         );
 
         profilePhotoRepository.delete(photo);
-        
+
         /*
          * If the deleted photo was primary,
          * automatically make the first remaining photo primary.
@@ -326,6 +348,7 @@ public class ProfilePhotoService {
             UUID photoId
     ) {
         Profile profile = getProfileForUser(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         ProfilePhoto photo =
                 profilePhotoRepository
@@ -423,6 +446,7 @@ public class ProfilePhotoService {
 
 
 
+
         response.setOriginalFileName(
                 photo.getOriginalFileName()
         );
@@ -453,4 +477,35 @@ public class ProfilePhotoService {
 
         return response;
     }
+
+
+
+        private ProfileViewPhotoResponse toViewResponse(ProfilePhoto photo) {
+
+    ProfileViewPhotoResponse response =
+            new ProfileViewPhotoResponse();
+
+    response.setId(photo.getId());
+    response.setOriginalFileName(
+            photo.getOriginalFileName()
+    );
+    response.setMimeType(photo.getMimeType());
+    response.setPrimary(photo.isPrimary());
+    response.setDisplayOrder(photo.getDisplayOrder());
+
+    if (photo.getStoragePath() != null
+            && !photo.getStoragePath().isBlank()) {
+
+        response.setPhotoUrl(
+                supabaseStorageService.createSignedUrl(
+                        photo.getStoragePath()
+                )
+        );
+    }
+
+    response.setCreatedAt(photo.getCreatedAt());
+
+    return response;
+}
+
 }

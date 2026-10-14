@@ -16,8 +16,25 @@ public class ProfileSearchRepositoryImpl
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Override
+   /* @Override
     public List<Profile> search(ProfileSearchRequest request) {
+      if you wants to lock visitors to filter profiles for that
+      remove the following @Override & private */
+
+      @Override
+        public List<Profile> search(ProfileSearchRequest request) {
+        return searchInternal(request, false);
+        }
+
+        @Override
+        public List<Profile> searchPublic(ProfileSearchRequest request) {
+        return searchInternal(request, true);
+        }
+
+      private List<Profile> searchInternal(
+        ProfileSearchRequest request,
+        boolean publicOnly
+        ) {
 
         StringBuilder jpql = new StringBuilder(
                 "SELECT p FROM Profile p JOIN FETCH p.user " +
@@ -366,9 +383,17 @@ if (request.getReligion() != null
 
         query.setParameter("profileStatus", "ACTIVE");
 
-        query.setParameter(
+       /* query.setParameter(
                 "visibilities",
                 List.of("MEMBERS_ONLY", "PUBLIC")
+        );
+        remove following query for visitor to filter*/
+
+        query.setParameter(
+                "visibilities",
+                publicOnly
+                        ? List.of("PUBLIC")
+                        : List.of("MEMBERS_ONLY", "PUBLIC")
         );
 
 
@@ -695,6 +720,41 @@ if (request.getReligion() != null
 
         query.setFirstResult(page * size);
         query.setMaxResults(size);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Profile> findPublicProfilesByGender(String gender) {
+
+        String jpql =
+                "SELECT p FROM Profile p JOIN FETCH p.user " +
+                "WHERE p.profileStatus = :profileStatus " +
+                "AND p.visibility = :visibility " +
+                "AND p.gender = :gender " +
+                "ORDER BY p.user.lastLogin DESC NULLS LAST, " +
+                "p.createdAt DESC";
+
+        TypedQuery<Profile> query =
+                entityManager.createQuery(
+                        jpql,
+                        Profile.class
+                );
+
+        query.setParameter(
+                "profileStatus",
+                "ACTIVE"
+        );
+
+        query.setParameter(
+                "visibility",
+                "PUBLIC"
+        );
+
+        query.setParameter(
+                "gender",
+                gender
+        );
 
         return query.getResultList();
     }

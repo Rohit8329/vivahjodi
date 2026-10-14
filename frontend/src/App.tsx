@@ -1,5 +1,7 @@
 import AdvancedSearchPage from "./AdvancedSearchPage";
+import ProfileViewPage from "./ProfileViewPage";
 import { useEffect, useState } from "react";
+import PublicProfilesPage from "./PublicProfilesPage";
 import "./App.css";
 
 
@@ -10,8 +12,17 @@ import {
   type AuthResponse,
 } from "./api/auth";
 
+/* import {
+  searchProfiles,
+  type ProfileSearchRequest,
+  type ProfileSearchResponse,
+} from "./api/search"; */
+
+/* remove the first following import */
+
 import {
   searchProfiles,
+  searchPublicProfiles,
   type ProfileSearchRequest,
   type ProfileSearchResponse,
 } from "./api/search";
@@ -31,7 +42,9 @@ import {
   getPendingAdminProfiles,
   approveAdminProfile,
   rejectAdminProfile,
+  getAdminProfileChanges,
   type AdminProfile,
+  type ProfileFieldChange,
 } from "./api/admin";
 
 import {
@@ -99,6 +112,20 @@ import {
   type EmploymentType,
   type EmploymentSector,
 } from "./api/occupationMaster";
+
+// 2. Helper function goes here
+
+function formatAdminChangeValue(value: unknown): string {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
 
 /* =========================================================
    RAZORPAY TYPES
@@ -214,6 +241,7 @@ type ProfileForm = {
   familyValues: string;
   familyStatus: string;
   familyAbout: string;
+  familyContact: string;
   parentalDetails: string;
   relativeName: string;
   relativeRelation: string;
@@ -342,6 +370,7 @@ const emptyProfileForm: ProfileForm = {
   familyValues: "",
   familyStatus: "",
   familyAbout: "",
+  familyContact: "",
   parentalDetails: "",
   relativeName: "",
   relativeRelation: "",
@@ -614,7 +643,7 @@ function App() {
     ======================================================== */
 
 
-    const [masterStates, setMasterStates] = 
+    const [masterStates, setMasterStates] =
       useState<MasterState[]>([]);
 
 
@@ -631,22 +660,22 @@ function App() {
       useState("");
 
 
-    const [nativeMasterDistricts, setNativeMasterDistricts] = 
+    const [nativeMasterDistricts, setNativeMasterDistricts] =
       useState<MasterDistrict[]>([]);
 
-    const [nativeMasterTalukas, setNativeMasterTalukas] = 
+    const [nativeMasterTalukas, setNativeMasterTalukas] =
       useState<MasterTaluka[]>([]);
 
-    const [masterDistricts, setMasterDistricts] = 
+    const [masterDistricts, setMasterDistricts] =
       useState<MasterDistrict[]>([]);
-    
-    const [masterTalukas, setMasterTalukas] = 
+
+    const [masterTalukas, setMasterTalukas] =
       useState<MasterTaluka[]>([]);
 
-    const [masterLoading, setMasterLoading] = 
+    const [masterLoading, setMasterLoading] =
       useState(false);
 
-    const [masterError, setMasterError] = 
+    const [masterError, setMasterError] =
       useState("");
 
 
@@ -1031,9 +1060,9 @@ useEffect(() => {
   const [profileView, setProfileView] =
     useState(false);
 
-  const [profileStep, setProfileStep] = 
+  const [profileStep, setProfileStep] =
     useState(1);
-    
+
   const [profileLoading, setProfileLoading] =
     useState(false);
 
@@ -1051,19 +1080,31 @@ useEffect(() => {
     useState<ProfilePhotoDraft[]>([]);
 
   const [removedProfilePhotoIds, setRemovedProfilePhotoIds] =
-    useState<string[]>([]);  
+    useState<string[]>([]);
 
-  const [adminProfiles, setAdminProfiles] = 
+  const [adminProfiles, setAdminProfiles] =
     useState<AdminProfile[]>([]);
 
-  const [adminLoading, setAdminLoading] = 
+  const [adminLoading, setAdminLoading] =
     useState(false);
-  
-  const [adminError, setAdminError] = 
+
+  const [adminError, setAdminError] =
     useState("");
 
-  const [adminView, setAdminView] = 
+  const [adminView, setAdminView] =
     useState(false);
+
+  const [adminProfileChanges, setAdminProfileChanges] =
+    useState<Record<string, ProfileFieldChange[]>>({});
+
+  const [adminChangesLoading, setAdminChangesLoading] =
+    useState<string | null>(null);
+
+  const [adminChangesError, setAdminChangesError] =
+    useState<Record<string, string>>({});
+
+  const [expandedChangesProfileId, setExpandedChangesProfileId] =
+    useState<string | null>(null);
 
 
 
@@ -1085,9 +1126,9 @@ const [editingRelativeForm, setEditingRelativeForm] =
     notes: "",
     contactVisible: false,
   });
-    
 
-  
+
+
   const [photoError, setPhotoError] =
     useState("");
 
@@ -1100,6 +1141,19 @@ const [editingRelativeForm, setEditingRelativeForm] =
     localStorage.getItem(
       "vivahjodi_token",
     );
+
+  const openLogin =
+    localStorage.getItem(
+      "vivahjodi_open_login",
+    );
+
+  if (openLogin === "true") {
+    localStorage.removeItem(
+      "vivahjodi_open_login",
+    );
+
+    setModal("login");
+  }
 
   if (!token) {
     return;
@@ -1237,7 +1291,7 @@ const loadAdminProfiles = async () => {
     nakshatra: data.nakshatra || "",
     manglikStatus: data.manglikStatus || "",
     motherTongue: data.motherTongue || "मराठी",
-  
+
     eatingHabits: data.eatingHabits || "",
     drinkingHabits: data.drinkingHabits || "",
     smokingHabits: data.smokingHabits || "",
@@ -1338,6 +1392,7 @@ const loadAdminProfiles = async () => {
 
 
     familyAbout: family?.familyAbout || "",
+    familyContact: family?.familyContact || "",
 
     numberOfBrothers:
       family?.numberOfBrothers !== null &&
@@ -1369,7 +1424,7 @@ const loadAdminProfiles = async () => {
         parentalDetails: family?.parentalDetails || "",
 
 
-      
+
     /* =================================================
        PARTNER PREFERENCES
        ================================================= */
@@ -1456,7 +1511,7 @@ const loadAdminProfiles = async () => {
     try {
     const data = await getMyProfile(token);
 
-    
+
       const education = data
         ? await getMyEducation(token)
         : null;
@@ -1465,12 +1520,12 @@ const loadAdminProfiles = async () => {
         ? await getMyFamily(token)
         : null;
 
-      
+
 
       const loadedRelatives = data
         ? await getMyRelatives(token)
         : [];
-        
+
 
       const loadedOccupation = data
         ? await getMyOccupation(token)
@@ -1750,7 +1805,7 @@ const removeProfilePhoto = (id: string) => {
     currentTaluka:
         profileForm.taluka.trim() || undefined,
     currentCity:
-        profileForm.city.trim() || undefined,  
+        profileForm.city.trim() || undefined,
 
 
 
@@ -1969,6 +2024,9 @@ visibility:
         familyAbout:
           profileForm.familyAbout.trim() || undefined,
 
+        familyContact:
+          profileForm.familyContact.trim() || undefined,
+
         numberOfBrothers:
           profileForm.numberOfBrothers
             ? Number(profileForm.numberOfBrothers)
@@ -2146,7 +2204,7 @@ window.scrollTo({
       if (currentUser?.role === "ADMIN") {
       setAuthError("Admin account साठी matrimonial profile आवश्यक नाही.");
       return;
-    } 
+    }
      =========================================================================== */
 
     setProfileStep(1);
@@ -2186,14 +2244,14 @@ window.scrollTo({
       "vivahjodi_token",
     );
 
-    if (!token) {
+  /*  if (!token) {
       setSearchResults([]);
       setSearchError(
         "प्रोफाइल शोधण्यासाठी कृपया प्रथम लॉगिन करा.",
       );
       setSearchMessage("");
       return;
-    }
+    uncomment this for lock visitor for filter profile } */
 
     setSearchLoading(true);
     setSearchError("");
@@ -2244,10 +2302,25 @@ window.scrollTo({
     }
 
     try {
-      const results = await searchProfiles(
+
+      const hasFullSearchAccess =
+        currentUser?.role === "ADMIN" ||
+        membership?.membershipStatus === "ACTIVE";
+
+      const results =
+        token && hasFullSearchAccess
+          ? await searchProfiles(token, request)
+          : await searchPublicProfiles(request);
+
+
+
+
+    /*  remove the above both const and uncommnet following to lock visitors for filter profiles
+
+    const results = await searchProfiles(
         token,
         request,
-      );
+      ); */
 
       setSearchResults(results);
       setSearchMessage(
@@ -2354,8 +2427,8 @@ window.scrollTo({
         setMembership(null);
         setMembershipLoading(false);
       } else {
-      
-      
+
+
         try {
           const membershipData =
             await getMyMembership(
@@ -2724,8 +2797,54 @@ window.scrollTo({
      RENDER
      ======================================================= */
 
+      if (window.location.pathname === "/brides") {
+        return <PublicProfilesPage gender="FEMALE" />;
+      }
+
+      if (window.location.pathname === "/grooms") {
+        return <PublicProfilesPage gender="MALE" />;
+      }
+
+
+      if (window.location.pathname === "/advanced-search") {
+        return (
+          <AdvancedSearchPage
+            canViewFullSearch={
+              currentUser?.role === "ADMIN" ||
+              membership?.membershipStatus === "ACTIVE"
+            }
+          />
+        );
+      }
+
+      /* uncomment this and remove the above if if (window.location.pathname === "/advanced-search") { );}
+      for lock to visitor for filter the profile
+
       if (window.location.pathname === "/advanced-search") {
        return <AdvancedSearchPage />;
+      }
+       */
+
+      const profileViewMatch =
+        window.location.pathname.match(/^\/profile\/([^/]+)$/);
+
+      if (profileViewMatch) {
+        const token = localStorage.getItem(
+          "vivahjodi_token",
+        );
+
+return (
+  <ProfileViewPage
+    profileId={decodeURIComponent(
+      profileViewMatch[1],
+    )}
+    token={token || undefined}
+    canViewCompleteDetails={
+      currentUser?.role === "ADMIN" ||
+      membership?.membershipStatus === "ACTIVE"
+    }
+  />
+);
       }
 
   return (
@@ -2793,12 +2912,20 @@ window.scrollTo({
                 <a href="#search">
                   जोडीदार शोधा
                 </a>
-                
+
                 <a href="/advanced-search">
                   ऍडव्हान्स शोध
-                </a>  
+                </a>
               </div>
             </div>
+
+              <a href="/brides">
+                वधू
+              </a>
+
+              <a href="/grooms">
+                वर
+              </a>
 
             <a href="#services">
               आमच्या सेवा
@@ -3123,6 +3250,10 @@ window.scrollTo({
                           </div>
 
                           <div>
+                            संपर्क: {adminProfile.family.familyContact || "-"}
+                          </div>
+
+                          <div>
                             पालकांची माहिती:{" "}
                             {adminProfile.family.parentalDetails || "-"}
                           </div>
@@ -3192,7 +3323,7 @@ window.scrollTo({
 </div>
 
 
-                    
+
                     <p>
                       <strong>ठिकाण:</strong>{" "}
                       {[
@@ -3222,6 +3353,122 @@ window.scrollTo({
 
 
                   </div>
+
+                  {/* Profile change review */}
+<div className="admin-profile-change-review">
+  <button
+    type="button"
+    className="secondary-button"
+    disabled={adminChangesLoading === adminProfile.id}
+    onClick={async () => {
+      const profileId = adminProfile.id;
+
+      if (expandedChangesProfileId === profileId) {
+        setExpandedChangesProfileId(null);
+        return;
+      }
+
+      setExpandedChangesProfileId(profileId);
+      setAdminChangesError((previous) => ({
+        ...previous,
+        [profileId]: "",
+      }));
+
+      if (adminProfileChanges[profileId]) {
+        return;
+      }
+
+      const token = localStorage.getItem("vivahjodi_token");
+
+      if (!token) {
+        setAdminChangesError((previous) => ({
+          ...previous,
+          [profileId]: "Admin सत्र उपलब्ध नाही.",
+        }));
+        return;
+      }
+
+      try {
+        setAdminChangesLoading(profileId);
+
+        const changes = await getAdminProfileChanges(
+          token,
+          profileId,
+        );
+
+        setAdminProfileChanges((previous) => ({
+          ...previous,
+          [profileId]: changes,
+        }));
+      } catch (error) {
+        setAdminChangesError((previous) => ({
+          ...previous,
+          [profileId]:
+            error instanceof Error
+              ? error.message
+              : "प्रोफाइलमधील बदल मिळवताना त्रुटी आली.",
+        }));
+      } finally {
+        setAdminChangesLoading(null);
+      }
+    }}
+  >
+    {adminChangesLoading === adminProfile.id
+      ? "बदल लोड होत आहेत..."
+      : expandedChangesProfileId === adminProfile.id
+        ? "बदल लपवा"
+        : "बदल पहा"}
+  </button>
+
+  {expandedChangesProfileId === adminProfile.id && (
+    <div className="admin-profile-changes-panel">
+      <h3>प्रोफाइलमधील बदल</h3>
+
+      {adminChangesError[adminProfile.id] && (
+        <p className="admin-error-message">
+          {adminChangesError[adminProfile.id]}
+        </p>
+      )}
+
+      {adminChangesLoading === adminProfile.id && (
+        <p>बदल लोड होत आहेत...</p>
+      )}
+
+      {!adminChangesLoading &&
+        !adminChangesError[adminProfile.id] &&
+        adminProfileChanges[adminProfile.id]?.length === 0 && (
+          <p>तुलना करण्यासाठी बदल उपलब्ध नाहीत.</p>
+        )}
+
+      {!adminChangesLoading &&
+        !adminChangesError[adminProfile.id] &&
+        (adminProfileChanges[adminProfile.id] || []).map(
+          (change, index) => (
+            <div
+              className="admin-profile-change-row"
+              key={`${change.section}-${change.field}-${index}`}
+            >
+              <strong>
+                {change.section
+                  ? `${change.section} · ${change.field}`
+                  : change.field}
+              </strong>
+
+              <div>
+                <span>जुनी माहिती: </span>
+                {formatAdminChangeValue(change.oldValue)}
+              </div>
+
+              <div>
+                <span>नवीन माहिती: </span>
+                {formatAdminChangeValue(change.newValue)}
+              </div>
+            </div>
+          ),
+        )}
+    </div>
+  )}
+</div>
 
                   <div className="admin-profile-actions">
 
@@ -4220,6 +4467,22 @@ window.scrollTo({
                                   event.target.value,
                                 )
                               }
+                            />
+                          </label>
+
+                          <label>
+                            <span>कुटुंब संपर्क (संपर्क क्रमांक)</span>
+                            <input
+                              type="tel"
+                              value={profileForm.familyContact}
+                              maxLength={32}
+                              onChange={(event) =>
+                                updateProfileField(
+                                  "familyContact",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="संपर्क क्रमांक लिहा"
                             />
                           </label>
 
@@ -5849,7 +6112,7 @@ window.scrollTo({
                             <h2>मूळ गाव / Native Place</h2>
                           </div>
                         </div>
-                        
+
                         <div className="profile-form-grid">
 
                         <label>
@@ -7141,59 +7404,187 @@ window.scrollTo({
                   <div className="search-results">
                     {searchResults.map(
                       (profile) => (
-                        <article
-                          className="search-result-card"
-                          key={profile.id}
-                        >
-                          <h3>
-                            {profile.firstName}{" "}
-                            {profile.middleName
-                              ? `${profile.middleName} `
-                              : ""}
-                            {profile.lastName}
-                          </h3>
+<article
+  className="search-result-card"
+  key={profile.id}
+>
+  <div className="search-result-photo-column">
+    {profile.photoUrl && (
+      <img
+        src={profile.photoUrl}
+        alt={`${profile.firstName} profile`}
+        className="search-result-photo"
+      />
+    )}
 
-                          <p>
-                            {profile.age
-                              ? `${profile.age} वर्षे`
-                              : ""}
-                            {profile.heightCm
-                              ? ` • ${profile.heightCm} सेमी`
-                              : ""}
-                          </p>
+    <button
+      type="button"
+      className="search-result-view-button"
+      onClick={() => {
+        window.location.href = `/profile/${profile.id}`;
+      }}
+    >
+      View Details
+    </button>
+  </div>
 
-                          <p>
-                            {profile.education ||
-                              "शिक्षण माहिती उपलब्ध नाही"}
-                          </p>
+  <div className="search-result-content">
+    <h3>
+      {profile.firstName}{" "}
+      {profile.middleName
+        ? `${profile.middleName} `
+        : ""}
+      {profile.lastName}
+    </h3>
 
-                          <p>
-                            {profile.occupation ||
-                              "व्यवसाय माहिती उपलब्ध नाही"}
-                          </p>
+    <div className="search-result-info-grid">
+      <p>
+        <strong>ID</strong>
+        <span>
+          {profile.profileCode || profile.id}
+        </span>
+      </p>
 
-                          <p>
-                            {profile.caste ||
-                              "समाज माहिती उपलब्ध नाही"}
-                            {profile.subCaste
-                              ? ` • ${profile.subCaste}`
-                              : ""}
-                          </p>
+      <p>
+        <strong>नाव</strong>
+        <span>
+          {[
+            profile.firstName,
+            profile.middleName,
+            profile.lastName,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        </span>
+      </p>
 
-                          <p>
-                            {profile.city ||
-                              profile.currentCity ||
-                              "स्थान उपलब्ध नाही"}
-                          </p>
+      <p>
+        <strong>लिंग</strong>
+        <span>{profile.gender || "—"}</span>
+      </p>
 
-                          <p>
-                            ID:{" "}
-                            {profile.profileCode ||
-                              profile.id}
-                          </p>
-                        </article>
+      <p>
+        <strong>विवाह स्थिती</strong>
+        <span>{profile.maritalStatus || "—"}</span>
+      </p>
+
+      <p>
+        <strong>धर्म</strong>
+        <span>{profile.religion || "—"}</span>
+      </p>
+
+      <p>
+        <strong>समाज</strong>
+        <span>{profile.caste || "—"}</span>
+      </p>
+
+      <p>
+        <strong>पोटजात</strong>
+        <span>{profile.subCaste || "—"}</span>
+      </p>
+
+      <p>
+        <strong>वय</strong>
+        <span>
+          {profile.age
+            ? `${profile.age} वर्षे`
+            : "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>उंची</strong>
+        <span>
+          {profile.heightCm
+            ? `${profile.heightCm} सेमी`
+            : "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>शिक्षण</strong>
+        <span>
+          {profile.education || "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>व्यवसाय</strong>
+        <span>
+          {profile.occupation || "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>वार्षिक उत्पन्न</strong>
+        <span>
+          {profile.annualIncome !== null &&
+          profile.annualIncome !== undefined
+            ? `₹ ${profile.annualIncome}`
+            : "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>सध्याचे ठिकाण</strong>
+        <span>
+          {[
+            profile.currentCity || profile.city,
+            profile.currentDistrict,
+            profile.currentState || profile.state,
+          ]
+            .filter(Boolean)
+            .join(", ") || "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>मूळ ठिकाण</strong>
+        <span>
+          {[
+            profile.nativeCity,
+            profile.nativeDistrict,
+            profile.nativeState,
+          ]
+            .filter(Boolean)
+            .join(", ") || "—"}
+        </span>
+      </p>
+
+      <p>
+        <strong>शेवटचे लॉगिन</strong>
+        <span>
+          {profile.lastLogin
+            ? `${new Date(
+                profile.lastLogin,
+              ).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })} | ${new Date(
+                profile.lastLogin,
+              ).toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              })}`
+            : "—"}
+        </span>
+      </p>
+
+      <p className="search-result-about-field">
+        <strong>माझ्याबद्दल</strong>
+        <span>
+          {profile.aboutMe || "माहिती उपलब्ध नाही"}
+        </span>
+      </p>
+    </div>
+  </div>
+</article>
                       ),
                     )}
+
                   </div>
                 )}
 
@@ -7205,7 +7596,7 @@ window.scrollTo({
 
             {/* =================================================
             ADVANCED SEARCH
-            
+
         <section
           className="section advanced-search-section"
           id="advanced-search"

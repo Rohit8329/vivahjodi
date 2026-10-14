@@ -10,21 +10,26 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.vivahjodi.profile.review.ProfileReviewSnapshotService;
+
 @Service
 public class RelativeDetailService {
 
     private final RelativeRepository relativeRepository;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final ProfileReviewSnapshotService profileReviewSnapshotService;
 
     public RelativeDetailService(
             RelativeRepository relativeRepository,
             ProfileRepository profileRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ProfileReviewSnapshotService profileReviewSnapshotService) {
 
         this.relativeRepository = relativeRepository;
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
+        this.profileReviewSnapshotService = profileReviewSnapshotService;
     }
 
     public RelativeDetailResponse addRelative(
@@ -32,6 +37,7 @@ public class RelativeDetailService {
             RelativeDetailRequest request) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         Relative relative = new Relative();
         relative.setProfile(profile);
@@ -65,6 +71,7 @@ public class RelativeDetailService {
             RelativeDetailRequest request) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         Relative relative = relativeRepository
                 .findById(relativeId)
@@ -91,6 +98,7 @@ public class RelativeDetailService {
             UUID relativeId) {
 
         Profile profile = getMyProfile(email);
+        profileReviewSnapshotService.captureBeforeChange(profile);
 
         Relative relative = relativeRepository
                 .findById(relativeId)
