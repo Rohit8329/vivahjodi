@@ -211,6 +211,8 @@ const age = calculateAge(profile.dateOfBirth);
         profile.firstName ||
         "Profile photo"
       }
+      onContextMenu={(event) => event.preventDefault()}
+      draggable={false}
     />
 
     {!canViewCompleteDetails && (
@@ -1007,13 +1009,15 @@ const age = calculateAge(profile.dateOfBirth);
 
             <div className="profile-view-photos">
               {data.photos.map((photo) => (
-                <img
+                                <img
                   key={photo.id}
                   src={photo.photoUrl || ""}
                   alt={
                     photo.originalFileName ||
                     profile.firstName
                   }
+                  onContextMenu={(event) => event.preventDefault()}
+                  draggable={false}
                 />
               ))}
             </div>
