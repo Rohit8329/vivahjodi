@@ -282,17 +282,27 @@ public class SupabaseStorageService {
                 );
             }
 
-            String signedUrl =
-                    extractSignedUrl(response.body());
+                String signedUrl =
+                        extractSignedUrl(response.body());
 
-            if (signedUrl == null
-                    || signedUrl.isBlank()) {
+                if (signedUrl == null
+                        || signedUrl.isBlank()) {
+
+                System.err.println(
+                        "Supabase Storage signed URL response status: "
+                                + response.statusCode()
+                );
+
+                System.err.println(
+                        "Supabase Storage signed URL response body: "
+                                + response.body()
+                );
 
                 throw new ResponseStatusException(
                         HttpStatus.BAD_GATEWAY,
-                        "Supabase Storage ने signed URL return केला नाही."
+                        "Supabase Storage response मध्ये signed URL extract करता आला नाही."
                 );
-            }
+                }
 
                 if (signedUrl.startsWith("/")) {
 
