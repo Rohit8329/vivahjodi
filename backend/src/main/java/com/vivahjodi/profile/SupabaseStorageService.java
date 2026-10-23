@@ -62,12 +62,7 @@ public class SupabaseStorageService {
             HttpRequest request =
                     HttpRequest.newBuilder()
                             .uri(URI.create(uploadUrl))
-                            .header(
-                                    "Authorization",
-                                    "Bearer "
-                                            + supabaseStorageConfig
-                                            .getServiceRoleKey()
-                            )
+                            
                             .header(
                                     "apikey",
                                     supabaseStorageConfig
@@ -157,12 +152,7 @@ public class SupabaseStorageService {
             HttpRequest request =
                     HttpRequest.newBuilder()
                             .uri(URI.create(deleteUrl))
-                            .header(
-                                    "Authorization",
-                                    "Bearer "
-                                            + supabaseStorageConfig
-                                            .getServiceRoleKey()
-                            )
+                            
                             .header(
                                     "apikey",
                                     supabaseStorageConfig
@@ -246,16 +236,10 @@ public class SupabaseStorageService {
                     HttpRequest.newBuilder()
                             .uri(URI.create(signUrl))
                             .header(
-                                    "Authorization",
-                                    "Bearer "
-                                            + supabaseStorageConfig
-                                            .getServiceRoleKey()
-                            )
-                            .header(
-                                    "apikey",
-                                    supabaseStorageConfig
-                                            .getServiceRoleKey()
-                            )
+        "apikey",
+        supabaseStorageConfig
+                .getServiceRoleKey()
+)
                             .header(
                                     "Content-Type",
                                     "application/json"
