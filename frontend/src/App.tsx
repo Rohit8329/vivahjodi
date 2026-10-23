@@ -7414,6 +7414,8 @@ return (
         src={profile.photoUrl}
         alt={`${profile.firstName} profile`}
         className="search-result-photo"
+        onContextMenu={(event) => event.preventDefault()}
+        draggable={false}
       />
     )}
 
